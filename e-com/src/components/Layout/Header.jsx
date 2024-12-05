@@ -180,7 +180,7 @@ export function AppHeader() {
             {/* Favoriler */}
             <ActionIcon 
               component={Link}
-              to="/wishlist"
+              to="/favorites"
               variant="subtle"
               size="lg"
             >

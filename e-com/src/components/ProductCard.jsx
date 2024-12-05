@@ -14,11 +14,14 @@ import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
 import { useAuthStore } from '../stores/authStore';
 import { cartService } from '../services/supabase/cart';
+import { useFavoriteStore } from '../stores/favoriteStore';
 
 const ProductCard = ({ product }) => {
   const [showActions, setShowActions] = useState(false);
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavoriteStore();
+  const isFav = isFavorite(product.id);
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
@@ -51,6 +54,44 @@ const ProductCard = ({ product }) => {
 
   const handleProductClick = () => {
     navigate(`/products/${product.id}`);
+  };
+
+  const handleFavoriteClick = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      notifications.show({
+        title: 'Uyarı',
+        message: 'Favorilere eklemek için giriş yapmalısınız',
+        color: 'yellow',
+      });
+      return;
+    }
+
+    try {
+      if (isFav) {
+        await removeFromFavorites(user.id, product.id);
+        notifications.show({
+          title: 'Başarılı',
+          message: 'Ürün favorilerden kaldırıldı',
+          color: 'green',
+        });
+      } else {
+        await addToFavorites(user.id, product.id);
+        notifications.show({
+          title: 'Başarılı',
+          message: 'Ürün favorilere eklendi',
+          color: 'green',
+        });
+      }
+    } catch (error) {
+      notifications.show({
+        title: 'Hata',
+        message: 'İşlem sırasında bir hata oluştu',
+        color: 'red',
+      });
+    }
   };
 
   return (
@@ -109,15 +150,11 @@ const ProductCard = ({ product }) => {
           </ActionIcon>
           <ActionIcon 
             variant="transparent" 
-            color="white" 
+            color={isFav ? 'red' : 'white'} 
             size="md"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              // Favorilere ekleme işlemi
-            }}
+            onClick={handleFavoriteClick}
           >
-            <IconHeart size={18} />
+            <IconHeart size={18} fill={isFav ? 'currentColor' : 'none'} />
           </ActionIcon>
           <ActionIcon 
             variant="transparent" 

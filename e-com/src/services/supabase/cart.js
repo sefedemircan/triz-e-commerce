@@ -73,5 +73,19 @@ export const cartService = {
       .eq('id', cartItemId);
 
     if (error) throw error;
-  }
+  },
+
+  clearCart: async (userId) => {
+    try {
+      const { error } = await supabase
+        .from('cart_items')
+        .delete()
+        .eq('user_id', userId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('clearCart error:', error);
+      throw error;
+    }
+  },
 }; 

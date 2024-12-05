@@ -8,6 +8,9 @@ import Cart from '../pages/Cart';
 import Profile from '../pages/Profile';
 import ProtectedRoute from './ProtectedRoute';
 import Products from '../pages/Products/index';
+import Favorites from '../pages/Favorites/index';
+import Checkout from '../pages/Checkout';
+import Orders from '../pages/Orders';
 
 export default function AppRoutes() {
   return (
@@ -22,6 +25,9 @@ export default function AppRoutes() {
         <Route element={<ProtectedRoute />}>
           <Route path="/cart" element={<Cart />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/orders" element={<Orders />} />
         </Route>
       </Route>
     </Routes>

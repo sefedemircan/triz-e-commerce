@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Container,
   Title,
@@ -12,11 +12,14 @@ import {
   Divider,
   Card,
   Box,
+  TextInput,
+  Radio,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useCartStore } from '../../stores/cartStore';
+import { supabase } from '../../services/supabase/client';
 
 export default function Cart() {
   const { user } = useAuthStore();
@@ -27,6 +30,30 @@ export default function Cart() {
     removeFromCart, 
     updateQuantity 
   } = useCartStore();
+
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [shippingMethod, setShippingMethod] = useState('standard'); // standard, express
+  
+  const totalAmount = items.reduce(
+    (sum, item) => sum + (item.products.price * item.quantity),
+    0
+  ).toFixed(2);
+  
+  const shippingOptions = {
+    standard: {
+      price: totalAmount >= 500 ? 0 : 29.90,
+      title: 'Standart Teslimat',
+      description: '3-5 iş günü',
+      estimatedDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toLocaleDateString('tr-TR')
+    },
+    express: {
+      price: 49.90,
+      title: 'Hızlı Teslimat',
+      description: '1-2 iş günü',
+      estimatedDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toLocaleDateString('tr-TR')
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -68,10 +95,81 @@ export default function Cart() {
     }
   };
 
-  const totalAmount = items.reduce(
-    (sum, item) => sum + (item.products.price * item.quantity),
-    0
-  ).toFixed(2);
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('code', couponCode.toUpperCase())
+        .eq('is_active', true)
+        .single();
+
+      if (error) throw error;
+
+      if (!data) {
+        notifications.show({
+          title: 'Hata',
+          message: 'Geçersiz kupon kodu',
+          color: 'red',
+        });
+        return;
+      }
+
+      if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        notifications.show({
+          title: 'Hata',
+          message: 'Bu kupon kodunun süresi dolmuş',
+          color: 'red',
+        });
+        return;
+      }
+
+      if (data.min_cart_amount > totalAmount) {
+        notifications.show({
+          title: 'Hata',
+          message: `Bu kuponu kullanmak için minimum sepet tutarı ${data.min_cart_amount.toLocaleString('tr-TR')} TL olmalıdır`,
+          color: 'red',
+        });
+        return;
+      }
+
+      setAppliedCoupon(data);
+      notifications.show({
+        title: 'Başarılı',
+        message: 'Kupon kodu uygulandı',
+        color: 'green',
+      });
+    } catch (error) {
+      notifications.show({
+        title: 'Hata',
+        message: 'Kupon kodu uygulanırken bir hata oluştu',
+        color: 'red',
+      });
+    }
+  };
+
+  const calculateDiscount = () => {
+    if (!appliedCoupon) return 0;
+
+    let discount = 0;
+    if (appliedCoupon.discount_type === 'percentage') {
+      discount = (totalAmount * appliedCoupon.discount_value) / 100;
+    } else {
+      discount = appliedCoupon.discount_value;
+    }
+
+    if (appliedCoupon.max_discount) {
+      discount = Math.min(discount, appliedCoupon.max_discount);
+    }
+
+    return discount;
+  };
+
+  const discount = calculateDiscount();
+  const shippingCost = shippingOptions[shippingMethod].price;
+  const finalAmount = Number(totalAmount) - discount + shippingCost;
 
   if (loading) {
     return (
@@ -107,7 +205,7 @@ export default function Cart() {
         <Stack spacing="md">
           {items.map((item) => (
             <Card key={item.id} withBorder padding="lg">
-              <Group align="start" noWrap>
+              <Group align="start" style={{ flexWrap: 'nowrap' }}>
                 <Box w={120}>
                   <Image
                     src={item.products.image_url}
@@ -163,22 +261,101 @@ export default function Cart() {
               Sipariş Özeti
             </Text>
             <Divider />
+            
+            {/* Kupon Kodu */}
+            <TextInput
+              label="Kupon Kodu"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value)}
+              rightSection={
+                <Button 
+                  variant="light" 
+                  size="xs"
+                  onClick={handleApplyCoupon}
+                >
+                  Uygula
+                </Button>
+              }
+              placeholder="Kupon kodunuz"
+            />
+
+            {/* Kargo Seçenekleri */}
+            <Radio.Group
+              label="Kargo Seçeneği"
+              value={shippingMethod}
+              onChange={setShippingMethod}
+            >
+              {Object.entries(shippingOptions).map(([key, option]) => (
+                <Paper key={key} withBorder p="xs" mb="xs">
+                  <Radio value={key} label={
+                    <div>
+                      <Group position="apart">
+                        <Text size="sm" weight={500}>{option.title}</Text>
+                        <Text size="sm" weight={500}>
+                          {option.price === 0 ? 'Ücretsiz' : `${option.price.toLocaleString('tr-TR')} TL`}
+                        </Text>
+                      </Group>
+                      <Text size="xs" color="dimmed">{option.description}</Text>
+                      <Text size="xs" color="dimmed">
+                        Tahmini Teslimat: {option.estimatedDate}
+                      </Text>
+                    </div>
+                  } />
+                </Paper>
+              ))}
+            </Radio.Group>
+
+            {/* Fiyat Detayları */}
             <Group position="apart">
               <Text>Ara Toplam</Text>
-              <Text weight={500}>{Number(totalAmount).toLocaleString('tr-TR')} TL</Text>
+              <Text weight={500}>{totalAmount.toLocaleString('tr-TR')} TL</Text>
             </Group>
-            <Group position="apart" color="green">
+
+            {discount > 0 && (
+              <Group position="apart" color="green">
+                <Text>İndirim</Text>
+                <Text weight={500} color="green">
+                  -{discount.toLocaleString('tr-TR')} TL
+                </Text>
+              </Group>
+            )}
+
+            <Group position="apart">
               <Text>Kargo</Text>
-              <Text weight={500} color="green">Ücretsiz</Text>
+              <Text weight={500}>
+                {shippingCost === 0 ? 'Ücretsiz' : `${shippingCost.toLocaleString('tr-TR')} TL`}
+              </Text>
             </Group>
+
             <Divider />
+            
             <Group position="apart">
               <Text weight={500}>Toplam</Text>
               <Text size="xl" weight={700} color="dark">
-                {Number(totalAmount).toLocaleString('tr-TR')} TL
+                {finalAmount.toLocaleString('tr-TR')} TL
               </Text>
             </Group>
-            <Button variant="filled" color="orange" size="md" fullWidth>
+
+            <Button 
+              variant="filled" 
+              color="orange" 
+              size="md" 
+              fullWidth
+              component={Link}
+              to="/checkout"
+              onClick={() => {
+                // Sepet bilgilerini localStorage'a kaydedelim
+                localStorage.setItem('checkout_data', JSON.stringify({
+                  items,
+                  totalAmount: Number(totalAmount),
+                  shippingMethod,
+                  shippingCost,
+                  discount,
+                  finalAmount,
+                  appliedCoupon
+                }));
+              }}
+            >
               Ödemeye Geç
             </Button>
           </Stack>

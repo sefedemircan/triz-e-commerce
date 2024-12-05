@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { cartService } from '../services/supabase/cart';
 
-export const useCartStore = create((set) => ({
+export const useCartStore = create((set, get) => ({
   items: [],
   loading: false,
   
@@ -65,7 +65,13 @@ export const useCartStore = create((set) => ({
   },
 
   // Sepeti temizle
-  clearCart: () => {
-    set({ items: [] });
+  clearCart: async (userId) => {
+    try {
+      await cartService.clearCart(userId);
+      set({ items: [] });
+    } catch (error) {
+      console.error('Clear cart error:', error);
+      throw error;
+    }
   }
 })); 
