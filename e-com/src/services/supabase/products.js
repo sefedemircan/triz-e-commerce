@@ -30,5 +30,22 @@ export const productService = {
       console.error('getById error:', error);
       throw error;
     }
+  },
+
+  getRelatedProducts: async (categoryId, currentProductId, limit = 4) => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('category_id', categoryId)
+        .neq('id', currentProductId)
+        .limit(limit);
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('getRelatedProducts error:', error);
+      throw error;
+    }
   }
 }; 

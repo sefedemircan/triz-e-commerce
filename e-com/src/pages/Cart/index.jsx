@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   Container,
   Title,
@@ -11,40 +11,32 @@ import {
   Stack,
   Divider,
   Card,
+  Box,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { Link } from 'react-router-dom';
-import { cartService } from '../../services/supabase/cart';
 import { useAuthStore } from '../../stores/authStore';
+import { useCartStore } from '../../stores/cartStore';
 
 export default function Cart() {
-  const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
   const { user } = useAuthStore();
+  const { 
+    items, 
+    loading, 
+    loadCart, 
+    removeFromCart, 
+    updateQuantity 
+  } = useCartStore();
 
   useEffect(() => {
-    loadCartItems();
-  }, [user]);
-
-  const loadCartItems = async () => {
-    try {
-      const items = await cartService.getCartItems(user.id);
-      setCartItems(items);
-    } catch (error) {
-      notifications.show({
-        title: 'Hata',
-        message: 'Sepet yüklenirken bir hata oluştu',
-        color: 'red',
-      });
-    } finally {
-      setLoading(false);
+    if (user) {
+      loadCart(user.id);
     }
-  };
+  }, [user, loadCart]);
 
   const handleUpdateQuantity = async (cartItemId, quantity) => {
     try {
-      await cartService.updateQuantity(cartItemId, quantity);
-      await loadCartItems();
+      await updateQuantity(user.id, cartItemId, quantity);
       notifications.show({
         title: 'Başarılı',
         message: 'Ürün adedi güncellendi',
@@ -61,8 +53,7 @@ export default function Cart() {
 
   const handleRemoveItem = async (cartItemId) => {
     try {
-      await cartService.removeFromCart(cartItemId);
-      await loadCartItems();
+      await removeFromCart(user.id, cartItemId);
       notifications.show({
         title: 'Başarılı',
         message: 'Ürün sepetten kaldırıldı',
@@ -77,7 +68,7 @@ export default function Cart() {
     }
   };
 
-  const totalAmount = cartItems.reduce(
+  const totalAmount = items.reduce(
     (sum, item) => sum + item.products.price * item.quantity,
     0
   );
@@ -90,7 +81,7 @@ export default function Cart() {
     );
   }
 
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <Container size="xl" py="xl">
         <Paper p="xl" radius="md" withBorder>
@@ -114,22 +105,29 @@ export default function Cart() {
 
       <Group align="flex-start" grow>
         <Stack spacing="md">
-          {cartItems.map((item) => (
+          {items.map((item) => (
             <Card key={item.id} withBorder padding="lg">
-              <Group>
-                <Image
-                  src={item.products.image_url}
-                  width={100}
-                  height={100}
-                  fit="contain"
-                  radius="md"
-                />
+              <Group align="start" noWrap>
+                <Box w={120}>
+                  <Image
+                    src={item.products.image_url}
+                    width={120}
+                    height={120}
+                    fit="cover"
+                    radius="md"
+                    sx={{ 
+                      minWidth: 120,
+                      border: '1px solid #eee',
+                      backgroundColor: '#f9f9f9'
+                    }}
+                  />
+                </Box>
                 <Stack spacing="xs" style={{ flex: 1 }}>
-                  <Text fw={500} size="lg">
+                  <Text fw={500} size="lg" lineClamp={2}>
                     {item.products.name}
                   </Text>
                   <Text c="dimmed" size="sm">
-                    Birim Fiyat: {item.products.price} TL
+                    Birim Fiyat: {item.products.price.toLocaleString('tr-TR')} TL
                   </Text>
                   <Group>
                     <NumberInput
@@ -139,18 +137,20 @@ export default function Cart() {
                       min={1}
                       max={99}
                       w={120}
+                      size="sm"
                     />
                     <Button
                       variant="subtle"
                       color="red"
                       onClick={() => handleRemoveItem(item.id)}
+                      size="sm"
                     >
                       Kaldır
                     </Button>
                   </Group>
                 </Stack>
-                <Text fw={700} size="lg">
-                  {item.products.price * item.quantity} TL
+                <Text fw={700} size="lg" style={{ whiteSpace: 'nowrap' }}>
+                  {(item.products.price * item.quantity).toLocaleString('tr-TR')} TL
                 </Text>
               </Group>
             </Card>

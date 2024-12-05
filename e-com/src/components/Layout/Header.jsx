@@ -23,7 +23,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { IconSearch, IconShoppingCart, IconHeart, IconUser, IconLogout, IconPackage, IconChevronDown } from '@tabler/icons-react';
 import { useAuthStore } from '../../stores/authStore';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useCartStore } from '../../stores/cartStore';
 
 const categories = [
   {
@@ -59,12 +60,19 @@ const categories = [
 
 export function AppHeader() {
   const { user, signOut } = useAuthStore();
+  const { items, loadCart } = useCartStore();
   const [opened, { toggle, close }] = useDisclosure(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const navigate = useNavigate();
 
-  const cartItemCount = 3;
+  useEffect(() => {
+    if (user) {
+      loadCart(user.id);
+    }
+  }, [user, loadCart]);
+
+  const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -180,21 +188,17 @@ export function AppHeader() {
             </ActionIcon>
 
             {/* Sepet */}
-            <Indicator 
-              label={cartItemCount} 
-              size={16}
-              disabled={cartItemCount === 0}
-              color="orange"
+            <ActionIcon
+              component={Link}
+              to="/cart"
+              size="lg"
+              variant="light"
+              color="gray"
             >
-              <ActionIcon 
-                component={Link}
-                to="/cart"
-                variant="subtle"
-                size="lg"
-              >
+              <Indicator label={cartItemCount} size={16} disabled={cartItemCount === 0}>
                 <IconShoppingCart size={20} />
-              </ActionIcon>
-            </Indicator>
+              </Indicator>
+            </ActionIcon>
 
             {/* Kullanıcı Menüsü */}
             {user ? (
