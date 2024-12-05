@@ -117,7 +117,7 @@ export default function Home() {
       <Box bg="orange.6" py={8}>
         <Container size="xl">
           <Text align="center" color="white" weight={500}>
-            150 TL ve Üzeri Alışverişlerde Kargo Bedava!
+            500 TL ve Üzeri Alışverişlerde Kargo Bedava!
           </Text>
         </Container>
       </Box>

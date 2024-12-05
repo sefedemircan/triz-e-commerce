@@ -69,9 +69,9 @@ export default function Cart() {
   };
 
   const totalAmount = items.reduce(
-    (sum, item) => sum + item.products.price * item.quantity,
+    (sum, item) => sum + (item.products.price * item.quantity),
     0
-  );
+  ).toFixed(2);
 
   if (loading) {
     return (
@@ -158,28 +158,28 @@ export default function Cart() {
         </Stack>
 
         <Card withBorder w={300}>
-          <Stack spacing="md">
-            <Title order={3}>Sipariş Özeti</Title>
+          <Stack spacing="sm">
+            <Text size="lg" weight={500}>
+              Sipariş Özeti
+            </Text>
             <Divider />
             <Group position="apart">
-              <Text>Ara Toplam:</Text>
-              <Text fw={700}>{totalAmount} TL</Text>
+              <Text>Ara Toplam</Text>
+              <Text weight={500}>{Number(totalAmount).toLocaleString('tr-TR')} TL</Text>
             </Group>
-            <Group position="apart">
-              <Text>Kargo:</Text>
-              <Text fw={700}>Ücretsiz</Text>
+            <Group position="apart" color="green">
+              <Text>Kargo</Text>
+              <Text weight={500} color="green">Ücretsiz</Text>
             </Group>
             <Divider />
             <Group position="apart">
-              <Text size="lg" fw={700}>
-                Toplam:
-              </Text>
-              <Text size="xl" fw={700}>
-                {totalAmount} TL
+              <Text weight={500}>Toplam</Text>
+              <Text size="xl" weight={700} color="dark">
+                {Number(totalAmount).toLocaleString('tr-TR')} TL
               </Text>
             </Group>
-            <Button size="lg" fullWidth>
-              Siparişi Tamamla
+            <Button variant="filled" color="orange" size="md" fullWidth>
+              Ödemeye Geç
             </Button>
           </Stack>
         </Card>
