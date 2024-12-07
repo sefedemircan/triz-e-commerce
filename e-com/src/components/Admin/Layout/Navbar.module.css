@@ -1,0 +1,8 @@
+.nav-link[data-active] {
+  background-color: var(--mantine-color-orange-7);
+  color: var(--mantine-color-white);
+}
+
+.nav-link:hover {
+  background-color: var(--mantine-color-orange-1);
+} 

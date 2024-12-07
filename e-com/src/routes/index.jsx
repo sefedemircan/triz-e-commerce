@@ -12,6 +12,7 @@ import Favorites from '../pages/Favorites/index';
 import Checkout from '../pages/Checkout';
 import Orders from '../pages/Orders';
 import CategoryPage from '../pages/CategoryPage';
+import AdminRoutes from './AdminRoutes';
 
 export default function AppRoutes() {
   return (
@@ -32,6 +33,8 @@ export default function AppRoutes() {
           <Route path="/orders" element={<Orders />} />
         </Route>
       </Route>
+      
+      <Route path="/admin/*" element={<AdminRoutes />} />
     </Routes>
   );
 } 

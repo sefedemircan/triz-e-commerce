@@ -59,7 +59,7 @@ const categories = [
 ];
 
 export function AppHeader() {
-  const { user, signOut } = useAuthStore();
+  const { user, signOut, userProfile } = useAuthStore();
   const { items, loadCart } = useCartStore();
   const [opened, { toggle, close }] = useDisclosure(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -226,6 +226,11 @@ export function AppHeader() {
                   >
                     Siparişlerim
                   </Menu.Item>
+                  {user && userProfile?.role === 'admin' && (
+                    <Menu.Item component={Link} to="/admin">
+                      Admin Panel
+                    </Menu.Item>
+                  )}
                   <Menu.Divider />
                   <Menu.Item 
                     color="red"
