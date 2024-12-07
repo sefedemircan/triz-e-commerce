@@ -108,5 +108,62 @@ export const productService = {
       console.error('getProducts error:', error);
       throw error;
     }
+  },
+
+  getCategoryBySlug: async (slug) => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .ilike('slug', slug)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Get category error:', error);
+      throw error;
+    }
+  },
+
+  getProductsByCategory: async (categorySlug, filters = {}) => {
+    try {
+      console.log('Fetching products for category:', categorySlug);
+
+      // Önce kategoriyi kontrol edelim
+      const { data: category } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', categorySlug)
+        .single();
+
+      console.log('Found category:', category);
+
+      if (!category) {
+        throw new Error('Category not found');
+      }
+
+      let query = supabase
+        .from('products')
+        .select('*')
+        .eq('category_id', category.id);
+
+      const { data: products, error } = await query;
+
+      if (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+      }
+
+      console.log('Found products:', products);
+
+      return {
+        data: products,
+        totalPages: 1
+      };
+    } catch (error) {
+      console.error('Get products error:', error);
+      throw error;
+    }
   }
 }; 

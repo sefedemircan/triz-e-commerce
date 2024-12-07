@@ -11,6 +11,7 @@ import Products from '../pages/Products/index';
 import Favorites from '../pages/Favorites/index';
 import Checkout from '../pages/Checkout';
 import Orders from '../pages/Orders';
+import CategoryPage from '../pages/CategoryPage';
 
 export default function AppRoutes() {
   return (
@@ -21,6 +22,7 @@ export default function AppRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/products/:id" element={<ProductDetail />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/kategori/:slug" element={<CategoryPage />} />
         
         <Route element={<ProtectedRoute />}>
           <Route path="/cart" element={<Cart />} />

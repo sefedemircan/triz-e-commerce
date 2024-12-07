@@ -190,6 +190,24 @@ const ProductCard = ({ product }) => {
           )}
         </Group>
       </Box>
+
+      {product.categories && (
+        <Badge 
+          variant="light" 
+          color="gray" 
+          size="sm" 
+          component={Link}
+          to={`/kategori/${product.categories.slug}`}
+          sx={(theme) => ({
+            cursor: 'pointer',
+            '&:hover': {
+              backgroundColor: theme.colors.gray[1]
+            }
+          })}
+        >
+          {product.categories.name}
+        </Badge>
+      )}
     </Card>
   );
 };

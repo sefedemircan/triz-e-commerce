@@ -1,3 +1,5 @@
+import '../../styles/categories.css';
+
 const PopularCategories = () => {
   const categories = [
     {
@@ -14,9 +16,9 @@ const PopularCategories = () => {
     },
     {
       id: 3,
-      name: 'Ev & Mobilya',
+      name: 'Ev & Yaşam',
       image: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?q=80&w=500&h=500&fit=crop',
-      link: '/kategori/ev-mobilya'
+      link: '/kategori/ev-yasam'
     },
     {
       id: 4,
@@ -43,12 +45,15 @@ const PopularCategories = () => {
       <h2 className="section-title">Popüler Kategoriler</h2>
       <div className="categories-grid">
         {categories.map((category) => (
-          <a key={category.id} href={category.link} className="category-card">
-            <div className="category-image">
+          <div key={category.id} className="category-card">
+            <a href={category.link}>
               <img src={category.image} alt={category.name} />
-            </div>
-            <h3>{category.name}</h3>
-          </a>
+              <div className="category-content">
+                <h3>{category.name}</h3>
+                <span className="arrow">→</span>
+              </div>
+            </a>
+          </div>
         ))}
       </div>
     </section>
