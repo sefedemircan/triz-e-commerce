@@ -49,63 +49,52 @@ export const productService = {
     }
   },
 
-  getProducts: async ({ search, category, sort, minPrice, maxPrice, page = 1, limit = 12 }) => {
+  getProducts: async (filters = {}) => {
     try {
       let query = supabase
         .from('products')
-        .select('*', { count: 'exact' });
+        .select(`
+          *,
+          categories:category_id (
+            id,
+            name,
+            slug
+          )
+        `);
 
-      // Arama filtresi
-      if (search) {
-        query = query.ilike('name', `%${search}%`);
-      }
-
-      // Kategori filtresi
-      if (category) {
-        query = query.eq('category_id', category);
-      }
-
-      // Fiyat aralığı filtresi
-      if (minPrice !== undefined) {
-        query = query.gte('price', minPrice);
-      }
-      if (maxPrice !== undefined) {
-        query = query.lte('price', maxPrice);
+      // Fiyat filtresi
+      if (filters.priceRange) {
+        query = query
+          .gte('price', filters.priceRange[0])
+          .lte('price', filters.priceRange[1]);
       }
 
       // Sıralama
-      switch (sort) {
-        case 'price-asc':
-          query = query.order('price', { ascending: true });
-          break;
-        case 'price-desc':
-          query = query.order('price', { ascending: false });
-          break;
-        case 'name-asc':
-          query = query.order('name', { ascending: true });
-          break;
-        case 'name-desc':
-          query = query.order('name', { ascending: false });
-          break;
-        default:
-          query = query.order('created_at', { ascending: false });
+      if (filters.sort) {
+        switch (filters.sort) {
+          case 'price-asc':
+            query = query.order('price', { ascending: true });
+            break;
+          case 'price-desc':
+            query = query.order('price', { ascending: false });
+            break;
+          case 'name-asc':
+            query = query.order('name', { ascending: true });
+            break;
+          case 'name-desc':
+            query = query.order('name', { ascending: false });
+            break;
+          default:
+            query = query.order('created_at', { ascending: false });
+        }
       }
 
-      // Sayfalama
-      const from = (page - 1) * limit;
-      const to = from + limit - 1;
-      query = query.range(from, to);
-
-      const { data, error, count } = await query;
+      const { data, error } = await query;
 
       if (error) throw error;
-
-      return {
-        data,
-        totalPages: Math.ceil(count / limit)
-      };
+      return { data, totalPages: 1 };
     } catch (error) {
-      console.error('getProducts error:', error);
+      console.error('Get products error:', error);
       throw error;
     }
   },
@@ -186,6 +175,37 @@ export const productService = {
       };
     } catch (error) {
       console.error('Get products error:', error);
+      throw error;
+    }
+  },
+
+  createProduct: async (productData) => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .insert([{
+          name: productData.name,
+          description: productData.description,
+          price: productData.price,
+          stock_quantity: productData.stock_quantity,
+          category_id: productData.category_id,
+          image_url: productData.image_url,
+          ...(productData.original_price && { original_price: productData.original_price })
+        }])
+        .select(`
+          *,
+          categories:category_id (
+            id,
+            name,
+            slug
+          )
+        `)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Create product error:', error);
       throw error;
     }
   }

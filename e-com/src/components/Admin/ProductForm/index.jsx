@@ -22,15 +22,15 @@ export function ProductForm({ initialData, onSubmit }) {
       name: initialData?.name || '',
       description: initialData?.description || '',
       price: initialData?.price || 0,
-      original_price: initialData?.original_price || 0,
+      original_price: initialData?.original_price || '',
       stock_quantity: initialData?.stock_quantity || 0,
       category_id: initialData?.category_id || '',
       image_url: initialData?.image_url || '',
     },
     validate: {
       name: (value) => !value ? 'Ürün adı zorunludur' : null,
-      price: (value) => value < 0 ? 'Fiyat 0\'dan küçük olamaz' : null,
-      stock_quantity: (value) => value < 0 ? 'Stok 0\'dan küçük olamaz' : null,
+      price: (value) => value <= 0 ? 'Geçerli bir fiyat giriniz' : null,
+      stock_quantity: (value) => value < 0 ? 'Geçerli bir stok miktarı giriniz' : null,
       category_id: (value) => !value ? 'Kategori seçimi zorunludur' : null,
       image_url: (value) => !value ? 'Görsel URL zorunludur' : null,
     },
@@ -63,7 +63,7 @@ export function ProductForm({ initialData, onSubmit }) {
       await onSubmit(values);
       form.reset();
     } catch (error) {
-      console.error('Form gönderilirken hata:', error);
+      console.error('Form submit error:', error);
     } finally {
       setLoading(false);
     }

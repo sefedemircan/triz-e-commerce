@@ -7,7 +7,6 @@ import {
   Table,
   ActionIcon,
   Text,
-  Image,
   Badge,
   Menu,
   TextInput,
@@ -17,6 +16,59 @@ import { IconEdit, IconTrash, IconDotsVertical, IconPlus, IconSearch } from '@ta
 import { productService } from '../../../services/supabase/products';
 import { ProductForm } from '../../../components/Admin/ProductForm';
 import { notifications } from '@mantine/notifications';
+
+// Stil tanımlamaları
+const imageStyles = {
+  wrapper: {
+    width: 80,
+    height: 80,
+    minWidth: 80,
+    borderRadius: 8,
+    overflow: 'hidden',
+    border: '1px solid var(--mantine-color-gray-3)',
+    margin: '0 auto', // Görseli hücre içinde ortala
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  }
+};
+
+const tableStyles = {
+  th: {
+    textAlign: 'center',
+    backgroundColor: 'var(--mantine-color-gray-0)',
+    padding: '12px',
+  },
+  td: {
+    textAlign: 'center',
+    verticalAlign: 'middle',
+    padding: '12px',
+  },
+  imageCell: {
+    width: 100,
+    padding: '8px',
+  },
+  nameCell: {
+    minWidth: 250,
+  },
+  categoryCell: {
+    width: 150,
+  },
+  priceCell: {
+    width: 120,
+  },
+  stockCell: {
+    width: 100,
+  },
+  statusCell: {
+    width: 120,
+  },
+  actionsCell: {
+    width: 80,
+  }
+};
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -90,9 +142,10 @@ export default function AdminProducts() {
       setSelectedProduct(null);
       loadProducts();
     } catch (error) {
+      console.error('İşlem hatası:', error);
       notifications.show({
         title: 'Hata',
-        message: 'İşlem sırasında bir hata oluştu',
+        message: error.message || 'İşlem sırasında bir hata oluştu',
         color: 'red',
       });
     }
@@ -107,7 +160,7 @@ export default function AdminProducts() {
       <Group position="apart" mb="xl">
         <Title order={2}>Ürünler</Title>
         <Button
-          leftIcon={<IconPlus size={20} />}
+          leftSection={<IconPlus size={20} />}
           onClick={() => {
             setSelectedProduct(null);
             setModalOpened(true);
@@ -128,41 +181,54 @@ export default function AdminProducts() {
       <Table>
         <thead>
           <tr>
-            <th>Görsel</th>
-            <th>Ürün Adı</th>
-            <th>Kategori</th>
-            <th>Fiyat</th>
-            <th>Stok</th>
-            <th>Durum</th>
-            <th>İşlemler</th>
+            <th style={tableStyles.th}>Görsel</th>
+            <th style={tableStyles.th}>Ürün Adı</th>
+            <th style={tableStyles.th}>Kategori</th>
+            <th style={tableStyles.th}>Fiyat</th>
+            <th style={tableStyles.th}>Stok</th>
+            <th style={tableStyles.th}>Durum</th>
+            <th style={tableStyles.th}>İşlemler</th>
           </tr>
         </thead>
         <tbody>
           {filteredProducts.map((product) => (
             <tr key={product.id}>
-              <td>
-                <Image
-                  src={product.image_url}
-                  width={60}
-                  height={60}
-                  fit="contain"
-                />
+              <td style={{ ...tableStyles.td, ...tableStyles.imageCell }}>
+                <div style={imageStyles.wrapper}>
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    style={imageStyles.image}
+                    onError={(e) => {
+                      e.target.src = 'https://placehold.co/80x80?text=Resim+Yok';
+                    }}
+                  />
+                </div>
               </td>
-              <td>{product.name}</td>
-              <td>{product.categories?.name}</td>
-              <td>{product.price.toLocaleString('tr-TR')} TL</td>
-              <td>{product.stock_quantity}</td>
-              <td>
+              <td style={{ ...tableStyles.td, ...tableStyles.nameCell }}>
+                {product.name}
+              </td>
+              <td style={{ ...tableStyles.td, ...tableStyles.categoryCell }}>
+                {product.categories?.name}
+              </td>
+              <td style={{ ...tableStyles.td, ...tableStyles.priceCell }}>
+                {product.price.toLocaleString('tr-TR')} TL
+              </td>
+              <td style={{ ...tableStyles.td, ...tableStyles.stockCell }}>
+                {product.stock_quantity}
+              </td>
+              <td style={{ ...tableStyles.td, ...tableStyles.statusCell }}>
                 <Badge
                   color={product.stock_quantity > 0 ? 'green' : 'red'}
+                  style={{ margin: '0 auto' }} // Badge'i ortala
                 >
                   {product.stock_quantity > 0 ? 'Stokta' : 'Tükendi'}
                 </Badge>
               </td>
-              <td>
-                <Menu>
+              <td style={{ ...tableStyles.td, ...tableStyles.actionsCell }}>
+                <Menu position="bottom-end">
                   <Menu.Target>
-                    <ActionIcon>
+                    <ActionIcon style={{ margin: '0 auto' }}>
                       <IconDotsVertical size={16} />
                     </ActionIcon>
                   </Menu.Target>
