@@ -137,8 +137,6 @@ export const productService = {
         .eq('slug', categorySlug)
         .single();
 
-      console.log('Found category:', category);
-
       if (!category) {
         throw new Error('Category not found');
       }
@@ -148,14 +146,39 @@ export const productService = {
         .select('*')
         .eq('category_id', category.id);
 
+      // Fiyat filtresi
+      if (filters.priceRange) {
+        query = query
+          .gte('price', filters.priceRange[0])
+          .lte('price', filters.priceRange[1]);
+      }
+
+      // Sıralama
+      if (filters.sort) {
+        switch (filters.sort) {
+          case 'price-asc':
+            query = query.order('price', { ascending: true });
+            break;
+          case 'price-desc':
+            query = query.order('price', { ascending: false });
+            break;
+          case 'name-asc':
+            query = query.order('name', { ascending: true });
+            break;
+          case 'name-desc':
+            query = query.order('name', { ascending: false });
+            break;
+          default:
+            query = query.order('created_at', { ascending: false });
+        }
+      }
+
       const { data: products, error } = await query;
 
       if (error) {
         console.error('Error fetching products:', error);
         throw error;
       }
-
-      console.log('Found products:', products);
 
       return {
         data: products,

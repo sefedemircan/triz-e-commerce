@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Container,
@@ -9,13 +9,13 @@ import {
   Group,
   Drawer,
   Stack,
-  RangeSlider,
   Button,
   Box,
   ActionIcon,
   Skeleton,
   Paper,
   Divider,
+  TextInput,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconAdjustments } from '@tabler/icons-react';
@@ -32,9 +32,12 @@ export default function CategoryPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState({
     sort: 'newest',
-    priceRange: [0, 5000],
+    priceRange: [0, 95000],
     page: 1
   });
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 5000 });
+  const minPriceRef = useRef(null);
+  const maxPriceRef = useRef(null);
 
   useEffect(() => {
     const loadCategoryData = async () => {
@@ -60,6 +63,25 @@ export default function CategoryPage() {
 
   const updateFilters = (newFilters) => {
     setFilters(prev => ({ ...prev, ...newFilters }));
+  };
+
+  const handlePriceChange = (type, value) => {
+    // Sadece sayı ve boş değer girişine izin ver
+    const numericValue = value.replace(/[^0-9]/g, '');
+    
+    setPriceRange(prev => ({
+      ...prev,
+      [type]: numericValue
+    }));
+  };
+
+  const handlePriceFilter = () => {
+    const min = Number(priceRange.min) || 0;
+    const max = Number(priceRange.max) || 5000;
+    
+    updateFilters({
+      priceRange: [min, max]
+    });
   };
 
   if (loading) {
@@ -92,19 +114,46 @@ export default function CategoryPage() {
           <Paper withBorder p="md">
             <Stack>
               <Text weight={500}>Fiyat Aralığı</Text>
-              <RangeSlider
-                value={filters.priceRange}
-                onChange={(value) => updateFilters({ priceRange: value })}
-                min={0}
-                max={5000}
-                step={100}
-                label={(value) => `${value} TL`}
-                marks={[
-                  { value: 0, label: '0 TL' },
-                  { value: 2500, label: '2500 TL' },
-                  { value: 5000, label: '5000 TL' }
-                ]}
-              />
+              <Group grow>
+                <TextInput
+                  ref={minPriceRef}
+                  placeholder="Min"
+                  value={priceRange.min}
+                  onChange={(e) => handlePriceChange('min', e.target.value)}
+                  rightSection={<Text size="sm" color="dimmed">TL</Text>}
+                  styles={{
+                    input: {
+                      '&:focus': {
+                        borderColor: 'var(--mantine-color-orange-6)',
+                      },
+                    },
+                  }}
+                  onClick={() => minPriceRef.current?.select()}
+                />
+                <TextInput
+                  ref={maxPriceRef}
+                  placeholder="Max"
+                  value={priceRange.max}
+                  onChange={(e) => handlePriceChange('max', e.target.value)}
+                  rightSection={<Text size="sm" color="dimmed">TL</Text>}
+                  styles={{
+                    input: {
+                      '&:focus': {
+                        borderColor: 'var(--mantine-color-orange-6)',
+                      },
+                    },
+                  }}
+                  onClick={() => maxPriceRef.current?.select()}
+                />
+              </Group>
+              <Button 
+                variant="light" 
+                color="orange" 
+                onClick={handlePriceFilter}
+                fullWidth
+              >
+                Filtrele
+              </Button>
 
               <Divider my="sm" />
 
