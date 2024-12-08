@@ -6,11 +6,11 @@ import {
   Text,
   Title,
   Group,
-  RingProgress,
   Stack,
   SimpleGrid,
   Table,
   Badge,
+  SegmentedControl,
 } from '@mantine/core';
 import {
   IconUsers,
@@ -18,8 +18,21 @@ import {
   IconCash,
   IconPackage,
   IconAlertTriangle,
+  IconChartBar,
+  IconTrendingUp,
 } from '@tabler/icons-react';
 import { supabase } from '../../../services/supabase/client';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from 'recharts';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -31,9 +44,111 @@ export default function Dashboard() {
     recentOrders: [],
   });
 
+  const [salesData, setSalesData] = useState({
+    timeSeriesData: [],
+    topProducts: [],
+    period: 'weekly'
+  });
+
   useEffect(() => {
     loadDashboardData();
-  }, []);
+    loadSalesData(salesData.period);
+  }, [salesData.period]);
+
+  const loadSalesData = async (period) => {
+    try {
+      // Tarih aralığını hesapla
+      const now = new Date();
+      let startDate = new Date();
+
+      if (period === 'daily') {
+        startDate.setDate(now.getDate() - 7); // Son 7 gün
+      } else if (period === 'weekly') {
+        startDate.setDate(now.getDate() - (8 * 7)); // Son 8 hafta
+      } else {
+        startDate.setMonth(now.getMonth() - 12); // Son 12 ay
+      }
+
+      // ISO string formatına çevir ve timezone'u düzelt
+      const startDateStr = startDate.toISOString();
+
+      // Zaman serisi verilerini çek
+      const { data: timeSeriesData, error: timeSeriesError } = await supabase
+        .from('orders')
+        .select('created_at, final_amount')
+        .gte('created_at', startDateStr)
+        .order('created_at', { ascending: true });
+
+      if (timeSeriesError) throw timeSeriesError;
+
+      // En çok satılan ürünleri çek
+      const { data: topProductsData, error: topProductsError } = await supabase
+        .from('order_items')
+        .select(`
+          quantity,
+          products (
+            id,
+            name,
+            price
+          )
+        `)
+        .order('quantity', { ascending: false })
+        .limit(5);
+
+      if (topProductsError) throw topProductsError;
+
+      // Zaman serisi verilerini grupla
+      const groupedData = timeSeriesData.reduce((acc, order) => {
+        const date = new Date(order.created_at);
+        let key;
+        
+        if (period === 'daily') {
+          key = date.toLocaleDateString('tr-TR');
+        } else if (period === 'weekly') {
+          // Haftanın ilk gününü Pazartesi olarak ayarla
+          const firstDayOfWeek = new Date(date);
+          const day = date.getDay();
+          const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+          firstDayOfWeek.setDate(diff);
+          
+          key = `${firstDayOfWeek.toLocaleDateString('tr-TR', { month: 'short' })} ${
+            Math.ceil((date.getDate() + 6 - date.getDay()) / 7)}. Hafta`;
+        } else {
+          key = date.toLocaleString('tr-TR', { month: 'long', year: 'numeric' });
+        }
+
+        if (!acc[key]) {
+          acc[key] = {
+            date: key,
+            total: 0,
+            count: 0
+          };
+        }
+
+        acc[key].total += order.final_amount;
+        acc[key].count += 1;
+        return acc;
+      }, {});
+
+      const formattedTimeSeriesData = Object.values(groupedData);
+
+      // Top ürünleri formatla
+      const formattedTopProducts = topProductsData.map(item => ({
+        name: item.products.name,
+        quantity: item.quantity,
+        revenue: item.quantity * item.products.price
+      }));
+
+      setSalesData({
+        ...salesData,
+        timeSeriesData: formattedTimeSeriesData,
+        topProducts: formattedTopProducts
+      });
+
+    } catch (error) {
+      console.error('Satış verileri yüklenirken hata:', error);
+    }
+  };
 
   const loadDashboardData = async () => {
     try {
@@ -197,6 +312,54 @@ export default function Dashboard() {
     </Paper>
   );
 
+  const SalesChart = () => (
+    <Paper withBorder p="md" radius="md">
+      <Group position="apart" mb="md">
+        <div>
+          <Text weight={500} mb="xs">Satış Trendi</Text>
+          <Text size="sm" color="dimmed">
+            {salesData.period === 'daily' ? 'Son 7 Gün' :
+             salesData.period === 'weekly' ? 'Son 8 Hafta' :
+             'Son 12 Ay'} Satışları
+          </Text>
+        </div>
+        <SegmentedControl
+          value={salesData.period}
+          onChange={(value) => setSalesData({ ...salesData, period: value })}
+          data={[
+            { label: 'Günlük', value: 'daily' },
+            { label: 'Haftalık', value: 'weekly' },
+            { label: 'Aylık', value: 'monthly' }
+          ]}
+        />
+      </Group>
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={salesData.timeSeriesData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis />
+          <Tooltip formatter={(value) => `${value.toLocaleString('tr-TR')} TL`} />
+          <Line type="monotone" dataKey="total" stroke="#1971c2" name="Toplam Satış" />
+        </LineChart>
+      </ResponsiveContainer>
+    </Paper>
+  );
+
+  const TopProducts = () => (
+    <Paper withBorder p="md" radius="md">
+      <Text weight={500} mb="md">En Çok Satan Ürünler</Text>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={salesData.topProducts}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip formatter={(value) => `${value.toLocaleString('tr-TR')}`} />
+          <Bar dataKey="quantity" fill="#1971c2" name="Satış Adedi" />
+        </BarChart>
+      </ResponsiveContainer>
+    </Paper>
+  );
+
   return (
     <Container size="xl">
       <Title order={2} mb="xl">
@@ -230,6 +393,15 @@ export default function Dashboard() {
           subtitle={`${stats.lowStockProducts.length} üründe düşük stok`}
         />
       </SimpleGrid>
+
+      <Grid mb="xl">
+        <Grid.Col span={12}>
+          <SalesChart />
+        </Grid.Col>
+        <Grid.Col span={12}>
+          <TopProducts />
+        </Grid.Col>
+      </Grid>
 
       <Grid>
         <Grid.Col span={{ base: 12, md: 8 }}>

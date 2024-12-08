@@ -7,6 +7,7 @@ import { useAuthStore } from './stores/authStore';
 import '@mantine/core/styles.css';
 import '@mantine/carousel/styles.css';
 import '@mantine/notifications/styles.css';
+import AIChat from './components/AIChat';
 
 // Özel tema oluşturuyoruz
 const theme = createTheme({
@@ -106,6 +107,7 @@ function App() {
       <Notifications position="top-right" zIndex={1000} />
       <BrowserRouter>
         <AppRoutes />
+        <AIChat />
       </BrowserRouter>
     </MantineProvider>
   );
