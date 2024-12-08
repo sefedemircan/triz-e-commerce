@@ -101,6 +101,9 @@ const ProductCard = ({ product }) => {
       radius="md" 
       withBorder={false}
       onClick={handleProductClick}
+      h="100%"
+      display="flex"
+      style={{ flexDirection: 'column' }}
       sx={(theme) => ({
         backgroundColor: theme.white,
         transition: 'all 200ms ease',
@@ -171,43 +174,64 @@ const ProductCard = ({ product }) => {
         </Group>
       </Card.Section>
 
-      <Box p="md">
-        <Text weight={500} size="md" lineClamp={2} mb="md">
+      <Box p="md" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Text weight={500} size="md" lineClamp={2} style={{ flex: 1 }}>
           {product.name}
         </Text>
-        <Group position="apart" align="center">
-          <Text weight={700} size="lg" color="dark">
-            {product.price.toLocaleString('tr-TR')} TL
-          </Text>
-          {product.stock_quantity > 0 ? (
-            <Badge variant="dot" color="green" size="lg">
-              Stokta
-            </Badge>
-          ) : (
-            <Badge variant="dot" color="red" size="lg">
-              Tükendi
+        
+        <Box mt="auto">
+          <Group position="apart" align="center">
+            <Box>
+              {product.original_price && product.original_price > product.price ? (
+                <Group spacing={8} align="center">
+                  <Text 
+                    size="sm" 
+                    color="dimmed" 
+                    style={{ textDecoration: 'line-through' }}
+                  >
+                    {product.original_price.toLocaleString('tr-TR')} TL
+                  </Text>
+                  <Text weight={700} size="lg" color="dark">
+                    {product.price.toLocaleString('tr-TR')} TL
+                  </Text>
+                </Group>
+              ) : (
+                <Text weight={700} size="lg" color="dark">
+                  {product.price.toLocaleString('tr-TR')} TL
+                </Text>
+              )}
+            </Box>
+            {product.stock_quantity > 0 ? (
+              <Badge variant="dot" color="green" size="lg">
+                Stokta
+              </Badge>
+            ) : (
+              <Badge variant="dot" color="red" size="lg">
+                Tükendi
+              </Badge>
+            )}
+          </Group>
+
+          {product.categories && (
+            <Badge 
+              variant="light" 
+              color="gray" 
+              size="sm" 
+              component={Link}
+              to={`/kategori/${product.categories.slug}`}
+              mt="md"
+              sx={(theme) => ({
+                cursor: 'pointer',
+                '&:hover': {
+                  backgroundColor: theme.colors.gray[1]
+                }
+              })}
+            >
+              {product.categories.name}
             </Badge>
           )}
-        </Group>
+        </Box>
       </Box>
-
-      {product.categories && (
-        <Badge 
-          variant="light" 
-          color="gray" 
-          size="sm" 
-          component={Link}
-          to={`/kategori/${product.categories.slug}`}
-          sx={(theme) => ({
-            cursor: 'pointer',
-            '&:hover': {
-              backgroundColor: theme.colors.gray[1]
-            }
-          })}
-        >
-          {product.categories.name}
-        </Badge>
-      )}
     </Card>
   );
 };

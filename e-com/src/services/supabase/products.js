@@ -208,5 +208,37 @@ export const productService = {
       console.error('Create product error:', error);
       throw error;
     }
+  },
+
+  updateProduct: async (productId, productData) => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .update({
+          name: productData.name,
+          description: productData.description,
+          price: productData.price,
+          original_price: productData.original_price || null,
+          stock_quantity: productData.stock_quantity,
+          category_id: productData.category_id,
+          image_url: productData.image_url
+        })
+        .eq('id', productId)
+        .select(`
+          *,
+          categories:category_id (
+            id,
+            name,
+            slug
+          )
+        `)
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Update product error:', error);
+      throw new Error('Ürün güncellenirken bir hata oluştu: ' + error.message);
+    }
   }
 }; 

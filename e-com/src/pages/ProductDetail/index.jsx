@@ -171,10 +171,15 @@ export default function ProductDetail() {
                 <Text size="xl" fw={700} color="orange">
                   {product.price.toLocaleString('tr-TR')} TL
                 </Text>
-                {product.original_price && (
-                  <Text size="sm" td="line-through" c="dimmed">
-                    {product.original_price.toLocaleString('tr-TR')} TL
-                  </Text>
+                {product.original_price && product.original_price > product.price && (
+                  <Group align="center" spacing="xs">
+                    <Text size="sm" td="line-through" c="dimmed">
+                      {product.original_price.toLocaleString('tr-TR')} TL
+                    </Text>
+                    <Badge color="red">
+                      %{Math.round((1 - product.price / product.original_price) * 100)} İndirim
+                    </Badge>
+                  </Group>
                 )}
               </div>
               <Badge 
