@@ -169,7 +169,7 @@ async function generateResponse(input, userId) {
         return 'Son 14 gün içinde iade edilebilecek bir siparişiniz bulunmuyor.';
       }
 
-      response = 'İade edilebilecek siparişleriniz:\n\n';
+      response = '��ade edilebilecek siparişleriniz:\n\n';
       recentOrders.forEach(order => {
         response += `📦 Sipariş #${order.id}\n`;
         response += `Tarih: ${new Date(order.created_at).toLocaleDateString('tr-TR')}\n`;

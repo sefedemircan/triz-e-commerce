@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import '../../styles/categories.css';
 
 const PopularCategories = () => {
@@ -46,13 +47,13 @@ const PopularCategories = () => {
       <div className="categories-grid">
         {categories.map((category) => (
           <div key={category.id} className="category-card">
-            <a href={category.link}>
+            <Link to={category.link}>
               <img src={category.image} alt={category.name} />
               <div className="category-content">
                 <h3>{category.name}</h3>
                 <span className="arrow">→</span>
               </div>
-            </a>
+            </Link>
           </div>
         ))}
       </div>

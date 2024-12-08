@@ -8,6 +8,7 @@ import '@mantine/core/styles.css';
 import '@mantine/carousel/styles.css';
 import '@mantine/notifications/styles.css';
 import AIChat from './components/AIChat';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Özel tema oluşturuyoruz
 const theme = createTheme({
@@ -85,31 +86,64 @@ const theme = createTheme({
   black: '#1A1B1E'
 });
 
+// Servis worker'ı kaydet
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('SW registered:', registration);
+      })
+      .catch(error => {
+        console.log('SW registration failed:', error);
+      });
+  });
+}
+
 function App() {
   const { initAuth } = useAuthStore();
 
   useEffect(() => {
+    const preloadResources = () => {
+      const criticalImages = [
+        { src: '/images/logo.png', type: 'image/png' },
+        { src: '/images/hero-banner.jpg', type: 'image/jpeg' }
+      ];
+
+      criticalImages.forEach(img => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.as = 'image';
+        link.href = img.src;
+        link.type = img.type;
+        link.fetchpriority = 'high';
+        document.head.appendChild(link);
+      });
+    };
+
+    preloadResources();
     initAuth();
   }, [initAuth]);
 
   return (
-    <MantineProvider theme={theme} defaultProps={{
-      Container: {
-        sizes: {
-          xs: 540,
-          sm: 720,
-          md: 960,
-          lg: 1140,
-          xl: 1320
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <MantineProvider theme={theme} defaultProps={{
+        Container: {
+          sizes: {
+            xs: 540,
+            sm: 720,
+            md: 960,
+            lg: 1140,
+            xl: 1320
+          }
         }
-      }
-    }}>
-      <Notifications position="top-right" zIndex={1000} />
-      <BrowserRouter>
-        <AppRoutes />
-        <AIChat />
-      </BrowserRouter>
-    </MantineProvider>
+      }}>
+        <ErrorBoundary>
+          <Notifications position="top-right" zIndex={1000} />
+          <AppRoutes />
+          <AIChat />
+        </ErrorBoundary>
+      </MantineProvider>
+    </BrowserRouter>
   );
 }
 

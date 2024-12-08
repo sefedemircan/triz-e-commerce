@@ -114,7 +114,7 @@ export default function Home() {
   return (
     <Box>
       {/* Üst Banner */}
-      <Box bg="orange.6" py={8}>
+      <Box style={{zIndex: 100}} bg="orange.6" py={8}>
         <Container size="xl">
           <Text align="center" color="white" weight={500}>
             500 TL ve Üzeri Alışverişlerde Kargo Bedava!

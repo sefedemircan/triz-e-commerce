@@ -17,43 +17,238 @@ import {
   Transition,
   Paper,
   UnstyledButton,
-  HoverCard
+  HoverCard,
+  Grid,
+  useMantineTheme
 } from '@mantine/core';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { IconSearch, IconShoppingCart, IconHeart, IconUser, IconLogout, IconPackage, IconChevronDown } from '@tabler/icons-react';
 import { useAuthStore } from '../../stores/authStore';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCartStore } from '../../stores/cartStore';
+import { useWindowScroll } from '@mantine/hooks';
 
 const categories = [
   {
-    title: 'Kadın',
-    slug: 'kadin',
-    subcategories: [
-      { name: 'Üst Giyim', slug: 'ust-giyim' },
-      { name: 'Alt Giyim', slug: 'alt-giyim' },
-      { name: 'Dış Giyim', slug: 'dis-giyim' },
-      { name: 'İç Giyim', slug: 'ic-giyim' }
+    title: 'Elektronik',
+    slug: 'elektronik',
+    navLink: '/kategori/elektronik'
+  },
+  {
+    title: 'Ev & Yaşam',
+    slug: 'ev-yasam',
+    navLink: '/kategori/ev-yasam'
+  },
+  {
+    title: 'Kozmetik',
+    slug: 'kozmetik',
+    navLink: '/kategori/kozmetik'
+  },
+  {
+    title: 'Ayakkabı & Çanta',
+    slug: 'ayakkabi-canta',
+    navLink: '/kategori/ayakkabi-canta'
+  },
+  {
+    title: 'Spor & Outdoor',
+    slug: 'spor-outdoor',
+    navLink: '/kategori/spor-outdoor'
+  }
+];
+
+const subCategories = [
+  {
+    mainCategory: 'Elektronik',
+    title: 'Telefon',
+    items: [
+      'Cep Telefonu',
+      'Android Cep Telefonları',
+      'iPhone iOS Telefonlar',
+      'Telefon Kılıfları',
+      'Şarj Cihazları',
+      'Powerbank',
+      'Araç İçi Telefon Tutucu',
+      'iPhone Kılıflar',
+      'Kulaklıklar'
     ]
   },
   {
-    title: 'Erkek',
-    slug: 'erkek',
-    subcategories: [
-      { name: 'Üst Giyim', slug: 'ust-giyim' },
-      { name: 'Alt Giyim', slug: 'alt-giyim' },
-      { name: 'Dış Giyim', slug: 'dis-giyim' },
-      { name: 'İç Giyim', slug: 'ic-giyim' }
+    mainCategory: 'Elektronik',
+    title: 'TV & Görüntü & Ses',
+    items: [
+      'Televizyon',
+      'Smart TV',
+      'QLED TV',
+      'OLED TV',
+      'TV Kumandaları',
+      'Soundbar',
+      'Projeksiyon Cihazı',
+      'Media Player',
+      'Hoparlör',
+      'Kulaklık'
     ]
   },
   {
-    title: 'Çocuk',
-    slug: 'cocuk',
-    subcategories: [
-      { name: 'Kız Çocuk', slug: 'kiz-cocuk' },
-      { name: 'Erkek Çocuk', slug: 'erkek-cocuk' },
-      { name: 'Bebek', slug: 'bebek' }
+    mainCategory: 'Elektronik',
+    title: 'Bilgisayar & Tablet',
+    items: [
+      'Bilgisayarlar',
+      'Tablet',
+      'Bilgisayar Bileşenleri',
+      'Monitör',
+      'Yazıcı & Tarayıcı',
+      'Ağ & Modem',
+      'Klavye',
+      'Mouse',
+      'Grafik Tablet',
+      'Çocuk Çizim Tableti'
+    ]
+  },
+  {
+    mainCategory: 'Ev & Yaşam',
+    title: 'Küçük Ev Aletleri',
+    items: [
+      'Süpürge',
+      'Robot Süpürge',
+      'Dikey Süpürge',
+      'Ütü',
+      'Kahve Makinesi',
+      'Çay Makinesi',
+      'Blender Seti',
+      'Tost Makinesi',
+      'Su Isıtıcı & Kettle',
+      'Mikser & Mikser Seti'
+    ]
+  },
+  {
+    mainCategory: 'Ev & Yaşam',
+    title: 'Beyaz Eşya',
+    items: [
+      'Buzdolabı',
+      'Çamaşır Makinesi',
+      'Bulaşık Makinesi',
+      'Kurutma Makinesi',
+      'Derin Dondurucu',
+      'Ankastre Setler',
+      'Kombi',
+      'Mikrodalga Fırın',
+      'Mini & Midi Fırın',
+      'Aspiratör'
+    ]
+  },
+  {
+    mainCategory: 'Ev & Yaşam',
+    title: 'Giyilebilir Teknoloji',
+    items: [
+      'Akıllı Saat',
+      'Akıllı Bileklik',
+      'VR Gözlük',
+      'Akıllı Gözlük',
+      'Akıllı Yüzük'
+    ]
+  },
+  {
+    mainCategory: 'Kozmetik',
+    title: 'Kişisel Bakım Aletleri',
+    items: [
+      'Saç Düzleştirici',
+      'Saç Maşası',
+      'Saç Kurutma Makinesi',
+      'Tıraş Makinesi',
+      'Tartı',
+      'Epilasyon Aletleri',
+      'IPL Lazer Epilasyon'
+    ]
+  },
+  {
+    mainCategory: 'Kozmetik',
+    title: 'Parfüm & Deodorant',
+    items: [
+      'Kadın Parfüm',
+      'Erkek Parfüm',
+      'Deodorant & Roll-on',
+      'Parfüm Setleri'
+    ]
+  },
+  {
+    mainCategory: 'Kozmetik',
+    title: 'Makyaj',
+    items: [
+      'Fondöten',
+      'Maskara',
+      'Ruj',
+      'Göz Farı',
+      'Allık',
+      'Makyaj Seti'
+    ]
+  },
+  {
+    mainCategory: 'Ayakkabı & Çanta',
+    title: 'Kadın Ayakkabı',
+    items: [
+      'Spor Ayakkabı',
+      'Topuklu Ayakkabı',
+      'Bot',
+      'Çizme',
+      'Günlük Ayakkabı',
+      'Sandalet'
+    ]
+  },
+  {
+    mainCategory: 'Ayakkabı & Çanta',
+    title: 'Erkek Ayakkabı',
+    items: [
+      'Spor Ayakkabı',
+      'Klasik Ayakkabı',
+      'Bot',
+      'Günlük Ayakkabı',
+      'Sandalet'
+    ]
+  },
+  {
+    mainCategory: 'Ayakkabı & Çanta',
+    title: 'Çanta',
+    items: [
+      'Kadın Çanta',
+      'Erkek Çanta',
+      'Sırt Çantası',
+      'Laptop Çantası',
+      'Valiz'
+    ]
+  },
+  {
+    mainCategory: 'Spor & Outdoor',
+    title: 'Spor Giyim',
+    items: [
+      'Eşofman',
+      'Spor Ayakkabı',
+      'Spor Tişört',
+      'Tayt',
+      'Şort',
+      'Yağmurluk'
+    ]
+  },
+  {
+    mainCategory: 'Spor & Outdoor',
+    title: 'Spor Aletleri',
+    items: [
+      'Koşu Bandı',
+      'Kondisyon Bisikleti',
+      'Dambıl & Ağırlık',
+      'Pilates Malzemeleri',
+      'Yoga Matı'
+    ]
+  },
+  {
+    mainCategory: 'Spor & Outdoor',
+    title: 'Outdoor & Kamp',
+    items: [
+      'Çadır',
+      'Kamp Sandalyesi',
+      'Termos',
+      'Kamp Lambası',
+      'Uyku Tulumu'
     ]
   }
 ];
@@ -65,12 +260,49 @@ export function AppHeader() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const navigate = useNavigate();
+  const [scroll, scrollTo] = useWindowScroll();
+  const [prevScroll, setPrevScroll] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+  const [activeCategory, setActiveCategory] = useState(categories[0].title);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [dropdownHeight, setDropdownHeight] = useState(0);
+  const dropdownRef = useRef(null);
+  const theme = useMantineTheme();
 
   useEffect(() => {
     if (user) {
       loadCart(user.id);
     }
   }, [user, loadCart]);
+
+  useEffect(() => {
+    if (dropdownRef.current) {
+      setDropdownHeight(dropdownRef.current.offsetHeight);
+    }
+  }, [isDropdownVisible]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScroll = scroll.y;
+      const isScrollingDown = currentScroll > prevScroll;
+      
+      if (isDropdownVisible && dropdownHeight) {
+        if (currentScroll > dropdownHeight) {
+          setIsDropdownVisible(false);
+        }
+      }
+      
+      if (currentScroll > 100) {
+        setIsVisible(!isScrollingDown);
+      } else {
+        setIsVisible(true);
+      }
+      
+      setPrevScroll(currentScroll);
+    };
+
+    handleScroll();
+  }, [scroll.y, prevScroll, isDropdownVisible]);
 
   const cartItemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -86,12 +318,16 @@ export function AppHeader() {
     <Box 
       component="header" 
       sx={(theme) => ({
-        position: 'sticky',
+        position: 'fixed',
         top: 0,
+        left: 0,
+        right: 0,
         backgroundColor: theme.white,
         borderBottom: `1px solid ${theme.colors.gray[2]}`,
         zIndex: 100,
-        boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+        boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+        transition: 'transform 300ms ease',
+        transform: isVisible ? 'translateY(0)' : 'translateY(-100%)',
       })}
     >
       <Container size="xl" h={60}>
@@ -112,58 +348,185 @@ export function AppHeader() {
           </Text>
 
           {/* Desktop Menü */}
-          <Group gap={30} visibleFrom="sm">
-            {categories.map((category) => (
-              <HoverCard 
-                key={category.slug} 
-                width={200} 
-                position="bottom" 
-                radius="md" 
-                shadow="md"
-                withinPortal
-              >
-                <HoverCard.Target>
-                  <UnstyledButton
-                    sx={(theme) => ({
-                      padding: '8px 12px',
-                      borderRadius: theme.radius.sm,
-                      color: theme.black,
-                      '&:hover': {
-                        backgroundColor: theme.colors.gray[0]
-                      }
-                    })}
-                  >
-                    <Group gap={5}>
-                      <Text fw={500}>{category.title}</Text>
-                      <IconChevronDown size={16} />
-                    </Group>
-                  </UnstyledButton>
-                </HoverCard.Target>
+          <Group gap={30} visibleFrom="sm" style={{ position: 'relative' }}>
+            <HoverCard 
+              width="100%" 
+              position="bottom-start" 
+              radius="md" 
+              shadow="md"
+              withinPortal={false}
+              onOpen={() => setIsDropdownVisible(true)}
+              onClose={() => setIsDropdownVisible(false)}
+              styles={{
+                dropdown: {
+                  padding: 0,
+                  position: 'absolute',
+                  top: '100%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '1320px',
+                  maxWidth: 'calc(100vw - 48px)',
+                  marginTop: '1rem',
+                  opacity: isVisible && isDropdownVisible ? 1 : 0,
+                  visibility: isVisible && isDropdownVisible ? 'visible' : 'hidden',
+                  transition: 'opacity 300ms ease, visibility 300ms ease',
+                  zIndex: 99
+                }
+              }}
+            >
+              <HoverCard.Target>
+                <UnstyledButton
+                  sx={(theme) => ({
+                    padding: '8px 12px',
+                    borderRadius: theme.radius.sm,
+                    color: theme.black,
+                    '&:hover': {
+                      backgroundColor: theme.colors.gray[0]
+                    }
+                  })}
+                >
+                  <Group gap={5}>
+                    <Text fw={500}>Tüm Kategoriler</Text>
+                    <IconChevronDown size={16} />
+                  </Group>
+                </UnstyledButton>
+              </HoverCard.Target>
 
-                <HoverCard.Dropdown>
-                  <Stack gap="xs">
-                    {category.subcategories.map((sub) => (
-                      <UnstyledButton
-                        key={sub.slug}
-                        component={Link}
-                        to={`/category/${category.slug}/${sub.slug}`}
-                        sx={(theme) => ({
-                          padding: '8px 12px',
-                          borderRadius: theme.radius.sm,
-                          width: '100%',
-                          '&:hover': {
-                            backgroundColor: theme.colors.gray[0]
-                          }
-                        })}
-                      >
-                        <Text size="sm">{sub.name}</Text>
-                      </UnstyledButton>
-                    ))}
-                  </Stack>
-                </HoverCard.Dropdown>
-              </HoverCard>
+              <HoverCard.Dropdown p={0}>
+                <Grid gutter={0}>
+                  {/* Sol Sidebar - Ana Kategoriler */}
+                  <Grid.Col 
+                    span={3} 
+                    style={{ 
+                      borderRight: '1px solid #eee',
+                      backgroundColor: '#f8f8f8',
+                      padding: '12px 0',
+                      minWidth: '240px'
+                    }}
+                  >
+                    <Stack spacing={0}>
+                      {categories.map((category) => (
+                        <UnstyledButton
+                          key={category.slug}
+                          sx={(theme) => ({
+                            width: '100%',
+                            padding: '12px 24px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            backgroundColor: activeCategory === category.title ? 'white' : 'transparent',
+                            position: 'relative',
+                            cursor: 'pointer',
+                            '&:hover': {
+                              backgroundColor: 'white',
+                              '& .category-text': {
+                                color: theme.colors.orange[6]
+                              }
+                            },
+                            '&::before': {
+                              content: '""',
+                              position: 'absolute',
+                              left: 0,
+                              top: 0,
+                              bottom: 0,
+                              width: '3px',
+                              backgroundColor: theme.colors.orange[6],
+                              opacity: activeCategory === category.title ? 1 : 0
+                            }
+                          })}
+                          onClick={() => setActiveCategory(category.title)}
+                        >
+                          <Group position="apart" style={{ width: '100%' }}>
+                            <Text 
+                              className="category-text"
+                              size="sm"
+                              sx={(theme) => ({
+                                color: activeCategory === category.title ? theme.colors.orange[6] : theme.colors.gray[7],
+                                fontWeight: 500
+                              })}
+                            >
+                              {category.title}
+                            </Text>
+                            <IconChevronDown 
+                              size={16} 
+                              style={{ 
+                                transform: 'rotate(-90deg)',
+                                color: activeCategory === category.title ? theme.colors.orange[6] : theme.colors.gray[5]
+                              }}
+                            />
+                          </Group>
+                        </UnstyledButton>
+                      ))}
+                    </Stack>
+                  </Grid.Col>
+
+                  {/* Sağ Taraf - Alt Kategoriler */}
+                  <Grid.Col 
+                    span={9} 
+                    p="xl" 
+                    style={{ 
+                      backgroundColor: 'white',
+                      minHeight: '400px'
+                    }}
+                  >
+                    <Grid>
+                      {subCategories
+                        .filter(sub => sub.mainCategory === activeCategory)
+                        .map((subCategory) => (
+                          <Grid.Col span={4} key={subCategory.title}>
+                            <Stack spacing={8}>
+                              <Text 
+                                fw={600} 
+                                size="sm" 
+                                color="orange.6"
+                                mb={10}
+                              >
+                                {subCategory.title}
+                              </Text>
+                              <Stack spacing={6}>
+                                {subCategory.items.map((item) => (
+                                  <Text
+                                    component={Link}
+                                    to={`/kategori/${activeCategory.toLowerCase().replace(/\s+/g, '-')}/${item.toLowerCase().replace(/\s+/g, '-')}`}
+                                    key={item}
+                                    size="sm"
+                                    sx={(theme) => ({
+                                      color: theme.colors.gray[6],
+                                      textDecoration: 'none',
+                                      '&:hover': {
+                                        color: theme.colors.orange[6]
+                                      }
+                                    })}
+                                  >
+                                    {item}
+                                  </Text>
+                                ))}
+                              </Stack>
+                            </Stack>
+                          </Grid.Col>
+                        ))}
+                    </Grid>
+                  </Grid.Col>
+                </Grid>
+              </HoverCard.Dropdown>
+            </HoverCard>
+
+            {categories.map((category) => (
+              <Text 
+                key={category.slug}
+                component={Link} 
+                to={category.navLink}
+                fw={500}
+                sx={(theme) => ({
+                  color: theme.black,
+                  textDecoration: 'none',
+                  '&:hover': {
+                    color: theme.colors.orange[6]
+                  }
+                })}
+              >
+                {category.title}
+              </Text>
             ))}
-            <Text component={Link} to="/campaigns" fw={500}>Kampanyalar</Text>
           </Group>
 
           {/* Sağ Menü */}
@@ -284,6 +647,10 @@ export function AppHeader() {
         padding="md"
         title="Menü"
         hiddenFrom="sm"
+        overlayProps={{
+          opacity: 0.5,
+          blur: 4
+        }}
       >
         <Stack>
           <TextInput
@@ -291,33 +658,17 @@ export function AppHeader() {
             rightSection={<IconSearch size={16} />}
           />
           {categories.map((category) => (
-            <Stack key={category.slug} spacing={0}>
-              <Button 
-                variant="subtle" 
-                fullWidth 
-                rightSection={<IconChevronDown size={16} />}
-              >
-                {category.title}
-              </Button>
-              <Stack spacing={0} pl="md">
-                {category.subcategories.map((sub) => (
-                  <Button
-                    key={sub.slug}
-                    component={Link}
-                    to={`/category/${category.slug}/${sub.slug}`}
-                    variant="subtle"
-                    fullWidth
-                    onClick={close}
-                  >
-                    {sub.name}
-                  </Button>
-                ))}
-              </Stack>
-            </Stack>
+            <Button
+              key={category.slug}
+              component={Link}
+              to={category.navLink}
+              variant="subtle"
+              fullWidth
+              onClick={close}
+            >
+              {category.title}
+            </Button>
           ))}
-          <Button component={Link} to="/campaigns" variant="subtle" fullWidth onClick={close}>
-            Kampanyalar
-          </Button>
           {user ? (
             <>
               <Button component={Link} to="/profile" variant="subtle" fullWidth onClick={close}>

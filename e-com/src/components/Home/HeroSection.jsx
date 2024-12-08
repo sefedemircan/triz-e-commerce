@@ -4,15 +4,23 @@ import { Container } from '@mantine/core';
 const HeroSection = () => {
   const slides = [
     {
-      image: '/images/carousel/format_webp.png',
-      alt: 'Yeni Sezon Ürünleri'
-    },
-    {
       image: '/images/carousel/format_webp (1).png',
       alt: 'Yaz İndirimleri'
     },
     {
       image: '/images/carousel/format_webp (2).png',
+      alt: 'Özel Koleksiyon'
+    },
+    {
+      image: '/images/carousel/format_webp.jpeg',
+      alt: 'Yeni Sezon Ürünleri'
+    },
+    {
+      image: '/images/carousel/format_webp (1).jpeg',
+      alt: 'Yaz İndirimleri'
+    },
+    {
+      image: '/images/carousel/format_webp (2).jpeg',
       alt: 'Özel Koleksiyon'
     },
   ];
