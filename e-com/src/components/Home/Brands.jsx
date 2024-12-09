@@ -64,7 +64,7 @@ export function Brands() {
                 backgroundColor: 'white',
                 transform: 'scale(1.05)',
               },
-              '&[data-inactive]': {
+              '&:disabled': {
                 opacity: 0,
                 cursor: 'default',
                 pointerEvents: 'none'

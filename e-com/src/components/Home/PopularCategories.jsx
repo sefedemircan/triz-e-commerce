@@ -7,37 +7,37 @@ const PopularCategories = () => {
     {
       id: 1,
       name: 'Elektronik',
-      image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=500&h=500&fit=crop',
+      image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=1000&fit=crop',
       link: '/kategori/elektronik'
     },
     {
       id: 2,
       name: 'Giyim',
-      image: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=500&h=500&fit=crop',
+      image: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=1000&fit=crop',
       link: '/kategori/giyim'
     },
     {
       id: 3,
       name: 'Ev & Yaşam',
-      image: 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?q=80&w=500&h=500&fit=crop',
+      image: 'https://images.unsplash.com/photo-1484101403633-562f891dc89a?q=80&w=1000&fit=crop',
       link: '/kategori/ev-yasam'
     },
     {
       id: 4,
       name: 'Kozmetik',
-      image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1487&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      image: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=1000&fit=crop',
       link: '/kategori/kozmetik'
     },
     {
       id: 5,
       name: 'Ayakkabı & Çanta',
-      image: 'https://images.unsplash.com/photo-1511556820780-d912e42b4980?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      image: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=1000&fit=crop',
       link: '/kategori/ayakkabi-canta'
     },
     {
       id: 6,
       name: 'Spor & Outdoor',
-      image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=500&h=500&fit=crop',
+      image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1000&fit=crop',
       link: '/kategori/spor-outdoor'
     }
   ];

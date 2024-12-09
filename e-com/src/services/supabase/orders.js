@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import { productService } from './products';
 
 export const orderService = {
   getOrders: async () => {
@@ -139,6 +140,85 @@ export const orderService = {
       return updatedOrder;
     } catch (error) {
       console.error('Update order status error:', error);
+      throw error;
+    }
+  },
+
+  createOrder: async (orderData) => {
+    try {
+      console.log('Creating order with data:', orderData);
+
+      // Sipariş verilerini hazırla
+      const orderPayload = {
+        user_id: orderData.userId,
+        status: 'pending',
+        shipping_address: orderData.shippingAddress,
+        payment_method: orderData.paymentMethod,
+        total_amount: orderData.totalAmount,
+        shipping_cost: orderData.shippingCost || 0,
+        discount: orderData.discount || 0,
+        final_amount: orderData.finalAmount
+      };
+
+      // Siparişi oluştur
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert([orderPayload])
+        .select()
+        .single();
+
+      if (orderError) {
+        console.error('Order creation error:', orderError);
+        throw orderError;
+      }
+
+      console.log('Order created:', order);
+
+      try {
+        // Sipariş detaylarını ekle
+        const orderItems = orderData.items.map(item => ({
+          order_id: order.id,
+          product_id: item.products.id,
+          quantity: item.quantity,
+          price: item.products.price
+        }));
+
+        console.log('Creating order items:', orderItems);
+
+        const { error: itemsError } = await supabase
+          .from('order_items')
+          .insert(orderItems);
+
+        if (itemsError) {
+          console.error('Order items creation error:', itemsError);
+          throw itemsError;
+        }
+
+        // Ürün stoklarını güncelle
+        for (const item of orderData.items) {
+          await productService.updateProductStats(
+            item.products.id,
+            item.quantity
+          );
+        }
+
+        return order;
+      } catch (error) {
+        // Hata durumunda siparişi iptal et
+        console.error('Error during order items creation:', error);
+        const { error: deleteError } = await supabase
+          .from('orders')
+          .delete()
+          .eq('id', order.id);
+
+        if (deleteError) {
+          console.error('Error deleting failed order:', deleteError);
+        }
+
+        throw error;
+      }
+    } catch (error) {
+      console.error('Create order error:', error);
       throw error;
     }
   }
