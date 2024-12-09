@@ -18,6 +18,10 @@ import '../../styles/carousel.css';
 import HeroSection from '../../components/Home/HeroSection';
 import PopularCategories from '../../components/Home/PopularCategories';
 import { cartService } from '../../services/supabase/cart';
+import { BestSellers } from '../../components/Home/BestSellers';
+import { Brands } from '../../components/Home/Brands';
+import { Campaigns } from '../../components/Home/Campaigns';
+import { AppFooter } from '../../components/Layout/Footer';
 
 // ProductCard bileşeni
 const ProductCard = ({ product }) => (
@@ -112,62 +116,76 @@ export default function Home() {
   }
 
   return (
-    <Box>
-      {/* Üst Banner */}
-      <Box style={{zIndex: 100}} bg="orange.6" py={8}>
-        <Container size="xl">
-          <Text align="center" color="white" weight={500}>
-            500 TL ve Üzeri Alışverişlerde Kargo Bedava!
-          </Text>
+    <>
+      <Box>
+        {/* Üst Banner */}
+        <Box style={{zIndex: 100}} bg="orange.6" py={8}>
+          <Container size="xl">
+            <Text align="center" color="white" weight={500}>
+              500 TL ve Üzeri Alışverişlerde Kargo Bedava!
+            </Text>
+          </Container>
+        </Box>
+
+        {/* Hero Section - Carousel */}
+        <HeroSection />
+
+        {/* Popüler Kategoriler */}
+        <PopularCategories />
+
+        {/* Kampanyalar */}
+        <Campaigns />
+        
+        {/* En Çok Satanlar */}
+        <BestSellers />
+
+        {/* Öne Çıkan Ürünler */}
+        <Container size="xl" mb={60}>
+          {featuredProducts.length > 0 && (
+            <Box>
+              <Group position="apart" mb={30}>
+                <Group spacing="xs">
+                  <Title order={2} size="h3" weight={600}>
+                    Öne Çıkan Ürünler
+                  </Title>
+                  <Badge variant="dot" color="orange" size="lg">
+                    Yeni
+                  </Badge>
+                </Group>
+                <Button 
+                  variant="subtle"
+                  component={Link}
+                  to="/products"
+                  color="dark"
+                  rightSection={<Text component="span" ml={4}>→</Text>}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                      transform: 'translateX(5px)',
+                    },
+                  }}
+                >
+                  Tümünü Gör
+                </Button>
+              </Group>
+
+              <Grid gutter={24}>
+                {featuredProducts.slice(0, 6).map((product) => (
+                  <Grid.Col key={product.id} span={{ base: 12, xs: 6, sm: 4, md: 3 }}>
+                    <ProductCard product={product} />
+                  </Grid.Col>
+                ))}
+              </Grid>
+            </Box>
+          )}
         </Container>
+
+        {/* Markalar */}
+        <Brands />
       </Box>
 
-      {/* Hero Section - Carousel */}
-      <HeroSection />
-
-      {/* Popüler Kategoriler */}
-      <PopularCategories />
-
-      {/* Öne Çıkan Ürünler */}
-      <Container size="xl" mb={60}>
-        {featuredProducts.length > 0 && (
-          <Box>
-            <Group position="apart" mb={30}>
-              <Group spacing="xs">
-                <Title order={2} size="h3" weight={600}>
-                  Öne Çıkan Ürünler
-                </Title>
-                <Badge variant="dot" color="orange" size="lg">
-                  Yeni
-                </Badge>
-              </Group>
-              <Button 
-                variant="subtle"
-                component={Link}
-                to="/products"
-                color="dark"
-                rightSection={<Text component="span" ml={4}>→</Text>}
-                sx={{
-                  '&:hover': {
-                    backgroundColor: 'transparent',
-                    transform: 'translateX(5px)',
-                  },
-                }}
-              >
-                Tümünü Gör
-              </Button>
-            </Group>
-
-            <Grid gutter={24}>
-              {featuredProducts.slice(0, 6).map((product) => (
-                <Grid.Col key={product.id} span={{ base: 12, xs: 6, sm: 4, md: 3 }}>
-                  <ProductCard product={product} />
-                </Grid.Col>
-              ))}
-            </Grid>
-          </Box>
-        )}
-      </Container>
-    </Box>
+      {/* Footer */}
+      <AppFooter />
+    </>
   );
 } 

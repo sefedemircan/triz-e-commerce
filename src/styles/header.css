@@ -1,0 +1,11 @@
+.category-button {
+  background-color: #f8f8f8 !important;
+}
+
+.category-button:hover {
+  background-color: #ffc330 !important;
+}
+
+.category-button[data-active="true"] {
+  background-color: #ffc330 !important;
+} 

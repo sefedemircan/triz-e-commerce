@@ -1,3 +1,4 @@
+import { Container, Title, Group, Badge } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import '../../styles/categories.css';
 
@@ -6,13 +7,13 @@ const PopularCategories = () => {
     {
       id: 1,
       name: 'Elektronik',
-      image: 'https://images.unsplash.com/photo-1635870723802-e88d76ae324e?q=80&w=1364&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=500&h=500&fit=crop',
       link: '/kategori/elektronik'
     },
     {
       id: 2,
       name: 'Giyim',
-      image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=500&h=500&fit=crop',
+      image: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=500&h=500&fit=crop',
       link: '/kategori/giyim'
     },
     {
@@ -42,8 +43,18 @@ const PopularCategories = () => {
   ];
 
   return (
-    <section className="popular-categories">
-      <h2 className="section-title">Popüler Kategoriler</h2>
+    <Container size="xl" py={40}>
+      <Group position="apart" mb={30}>
+        <Group spacing="xs">
+          <Title order={2} size="h3" weight={600}>
+            Popüler Kategoriler
+          </Title>
+          <Badge variant="dot" color="orange" size="lg">
+            Trend
+          </Badge>
+        </Group>
+      </Group>
+
       <div className="categories-grid">
         {categories.map((category) => (
           <div key={category.id} className="category-card">
@@ -57,7 +68,7 @@ const PopularCategories = () => {
           </div>
         ))}
       </div>
-    </section>
+    </Container>
   );
 };
 

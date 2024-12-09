@@ -103,24 +103,6 @@ function App() {
   const { initAuth } = useAuthStore();
 
   useEffect(() => {
-    const preloadResources = () => {
-      const criticalImages = [
-        { src: '/images/logo.png', type: 'image/png' },
-        { src: '/images/hero-banner.jpg', type: 'image/jpeg' }
-      ];
-
-      criticalImages.forEach(img => {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.as = 'image';
-        link.href = img.src;
-        link.type = img.type;
-        link.fetchpriority = 'high';
-        document.head.appendChild(link);
-      });
-    };
-
-    preloadResources();
     initAuth();
   }, [initAuth]);
 

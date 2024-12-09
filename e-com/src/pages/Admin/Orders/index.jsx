@@ -18,6 +18,7 @@ import {
 import { IconDotsVertical, IconSearch, IconEye } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { supabase } from '../../../services/supabase/client';
+import { orderService } from '../../../services/supabase/orders';
 
 const orderStatuses = [
   { value: 'pending', label: 'Onay Bekliyor', color: 'yellow' },
@@ -41,58 +42,8 @@ export default function Orders() {
 
   const loadOrders = async () => {
     try {
-      // Önce siparişleri ve ürün bilgilerini çekelim
-      const { data: ordersData, error: ordersError } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          order_items (
-            id,
-            quantity,
-            price,
-            product_id,
-            products (
-              id,
-              name,
-              image_url,
-              stock_quantity
-            )
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (ordersError) throw ordersError;
-
-      // Kullanıcı e-postalarını auth.users tablosundan çekelim
-      const { data: usersData, error: usersError } = await supabase
-        .from('auth_users_view')
-        .select('id, email')
-        .in('id', ordersData.map(order => order.user_id));
-
-      if (usersError) {
-        console.error('Kullanıcı bilgileri çekilemedi:', usersError);
-      }
-
-      // Profil bilgilerini çekelim
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .in('id', ordersData.map(order => order.user_id));
-
-      if (profilesError) {
-        console.error('Profil bilgileri çekilemedi:', profilesError);
-      }
-
-      // Tüm verileri birleştirelim
-      const ordersWithDetails = ordersData.map(order => ({
-        ...order,
-        profiles: {
-          ...(profilesData?.find(profile => profile.id === order.user_id) || {}),
-          email: usersData?.find(user => user.id === order.user_id)?.email
-        }
-      }));
-
-      setOrders(ordersWithDetails);
+      const data = await orderService.getOrders();
+      setOrders(data);
     } catch (error) {
       notifications.show({
         title: 'Hata',
@@ -106,21 +57,27 @@ export default function Orders() {
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', orderId);
+      // orderService'i kullanarak durumu güncelle
+      const updatedOrder = await orderService.updateOrderStatus(orderId, newStatus);
 
-      if (error) throw error;
+      // State'i güncelle
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId ? {
+            ...order,
+            ...updatedOrder,
+            profiles: order.profiles // Profil bilgilerini koru
+          } : order
+        )
+      );
 
       notifications.show({
         title: 'Başarılı',
         message: 'Sipariş durumu güncellendi',
         color: 'green',
       });
-
-      loadOrders();
     } catch (error) {
+      console.error('Update status error:', error);
       notifications.show({
         title: 'Hata',
         message: 'Durum güncellenirken bir hata oluştu',

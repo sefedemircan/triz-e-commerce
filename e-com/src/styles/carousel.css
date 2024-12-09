@@ -133,36 +133,13 @@
 }
 
 .carousel-root {
+  width: 100%;
   position: relative;
-  margin-bottom: 2rem;
-}
-
-.carousel-indicator {
-  width: 12px;
-  height: 4px;
-  transition: width 250ms ease;
-  background-color: #fff;
-}
-
-.carousel-indicators {
-  bottom: 20px;
-}
-
-.carousel-control {
-  opacity: 1;
-  transition: opacity 150ms ease;
-}
-
-.carousel-control[data-inactive="true"] {
-  opacity: 0;
-  cursor: default;
 }
 
 .carousel-slide {
+  height: 500px;
   position: relative;
-  height: 100%;
-  width: 100%;
-  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -170,6 +147,45 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 8px;
+}
+
+.carousel-controls {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  z-index: 2;
+}
+
+.carousel-control {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+
+.carousel-control:hover {
+  background-color: white !important;
+  transform: scale(1.1);
+}
+
+.carousel-indicators {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.carousel-indicator {
+  width: 8px !important;
+  height: 8px !important;
+  transition: width 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.carousel-indicator[data-active] {
+  width: 24px !important;
+  background-color: white !important;
 }
  

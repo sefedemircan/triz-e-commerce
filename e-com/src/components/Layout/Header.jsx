@@ -253,6 +253,27 @@ const subCategories = [
   }
 ];
 
+const categoryButtonStyles = {
+  root: {
+    width: '100%',
+    padding: '12px 24px',
+    display: 'flex',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    position: 'relative',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+
+    '&:hover': {
+      backgroundColor: '#fff',
+    },
+
+    '&.active': {
+      backgroundColor: '#fff',
+    }
+  }
+};
+
 export function AppHeader() {
   const { user, signOut, userProfile } = useAuthStore();
   const { items, loadCart } = useCartStore();
@@ -399,58 +420,40 @@ export function AppHeader() {
                     span={3} 
                     style={{ 
                       borderRight: '1px solid #eee',
-                      backgroundColor: '#f8f8f8',
                       padding: '12px 0',
-                      minWidth: '240px'
+                      minWidth: '240px',
+                      height: '500px',
+                      overflowY: 'auto',
+                      backgroundColor: '#f8f8f8'
                     }}
                   >
                     <Stack spacing={0}>
                       {categories.map((category) => (
                         <UnstyledButton
                           key={category.slug}
-                          sx={(theme) => ({
-                            width: '100%',
-                            padding: '12px 24px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            backgroundColor: activeCategory === category.title ? 'white' : 'transparent',
-                            position: 'relative',
-                            cursor: 'pointer',
-                            '&:hover': {
-                              backgroundColor: 'white',
-                              '& .category-text': {
-                                color: theme.colors.orange[6]
-                              }
-                            },
-                            '&::before': {
-                              content: '""',
-                              position: 'absolute',
-                              left: 0,
-                              top: 0,
-                              bottom: 0,
-                              width: '3px',
-                              backgroundColor: theme.colors.orange[6],
-                              opacity: activeCategory === category.title ? 1 : 0
-                            }
-                          })}
-                          onClick={() => setActiveCategory(category.title)}
+                          styles={categoryButtonStyles}
+                          className={activeCategory === category.title ? 'active' : ''}
+                          onMouseEnter={() => setActiveCategory(category.title)}
                         >
-                          <Group position="apart" style={{ width: '100%' }}>
+                          <Group style={{ width: '100%' }}>
                             <Text 
                               className="category-text"
                               size="sm"
-                              sx={(theme) => ({
+                              style={{ 
                                 color: activeCategory === category.title ? theme.colors.orange[6] : theme.colors.gray[7],
-                                fontWeight: 500
-                              })}
+                                fontWeight: 500,
+                                transition: 'color 0.2s ease'
+                              }}
                             >
                               {category.title}
                             </Text>
                             <IconChevronDown 
+                              className="category-icon"
                               size={16} 
                               style={{ 
                                 transform: 'rotate(-90deg)',
-                                color: activeCategory === category.title ? theme.colors.orange[6] : theme.colors.gray[5]
+                                color: activeCategory === category.title ? theme.colors.orange[6] : theme.colors.gray[5],
+                                transition: 'color 0.2s ease'
                               }}
                             />
                           </Group>
@@ -465,7 +468,10 @@ export function AppHeader() {
                     p="xl" 
                     style={{ 
                       backgroundColor: 'white',
-                      minHeight: '400px'
+                      height: '500px',
+                      overflowY: 'auto',
+                      position: 'relative',
+                      zIndex: 2
                     }}
                   >
                     <Grid>
