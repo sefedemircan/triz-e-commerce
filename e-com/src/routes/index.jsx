@@ -37,6 +37,8 @@ const PageLoader = () => (
   />
 );
 
+import SearchResults from '../pages/Search';
+
 export default function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
@@ -55,6 +57,7 @@ export default function AppRoutes() {
           <Route path="favorites" element={<Favorites />} />
           <Route path="kategori/:slug" element={<CategoryPage />} />
           <Route path="kategori/:slug/:subSlug" element={<CategoryPage />} />
+          <Route path="/search" element={<SearchResults />} />
         </Route>
 
         {/* Admin rotaları */}

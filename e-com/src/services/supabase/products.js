@@ -1,12 +1,65 @@
 import { supabase } from './client';
 
+const searchProducts = async (query) => {
+  try {
+    // Ana ürün araması
+    const { data: productResults, error: productError } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories (
+          id,
+          name,
+          slug
+        )
+      `)
+      .or(`name.ilike.%${query}%,description.ilike.%${query}%`)
+      .order('created_at', { ascending: false });
+
+    if (productError) throw productError;
+
+    // Kategori adına göre arama
+    const { data: categoryResults, error: categoryError } = await supabase
+      .from('products')
+      .select(`
+        *,
+        categories!inner (
+          id,
+          name,
+          slug
+        )
+      `)
+      .ilike('categories.name', `%${query}%`)
+      .order('created_at', { ascending: false });
+
+    if (categoryError) throw categoryError;
+
+    // Sonuçları birleştir ve tekrar edenleri kaldır
+    const allResults = [...productResults, ...categoryResults];
+    const uniqueResults = Array.from(new Map(allResults.map(item => [item.id, item])).values());
+
+    return uniqueResults;
+  } catch (error) {
+    console.error('Ürün arama hatası:', error);
+    throw error;
+  }
+};
+
 export const productService = {
   getFeaturedProducts: async () => {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('*')
-        .eq('is_featured', true);
+        .select(`
+          *,
+          categories (
+            id,
+            name,
+            slug
+          )
+        `)
+        .eq('is_featured', true)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data;
@@ -340,5 +393,7 @@ export const productService = {
 
     if (error) throw error;
     return data;
-  }
+  },
+
+  searchProducts
 }; 

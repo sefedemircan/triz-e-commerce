@@ -43,6 +43,36 @@ export function BestSellers() {
         slideGap="md"
         align="start"
         slidesToScroll={1}
+        withControls
+        loop={false}
+        containScroll="keepSnaps"
+        controlsOffset="xl"
+        styles={{
+          root: {
+            width: '100%'
+          },
+          control: {
+            opacity: 1,
+            backgroundColor: 'white',
+            border: '1px solid #eee',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            width: 40,
+            height: 40,
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              backgroundColor: 'white',
+              transform: 'scale(1.05)',
+            },
+            '&:disabled': {
+              opacity: 0,
+              cursor: 'default',
+              pointerEvents: 'none'
+            }
+          },
+          viewport: {
+            padding: '10px 0',
+          }
+        }}
       >
         {bestSellers.map((product) => (
           <Carousel.Slide key={product.id}>

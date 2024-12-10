@@ -19,6 +19,7 @@ import HeroSection from '../../components/Home/HeroSection';
 import PopularCategories from '../../components/Home/PopularCategories';
 import { cartService } from '../../services/supabase/cart';
 import { BestSellers } from '../../components/Home/BestSellers';
+import { FeaturedProducts } from '../../components/Home/FeaturedProducts';
 import { Brands } from '../../components/Home/Brands';
 import { Campaigns } from '../../components/Home/Campaigns';
 import { AppFooter } from '../../components/Layout/Footer';
@@ -84,12 +85,12 @@ export default function Home() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        console.log('Veri yükleniyor...'); // Debug için
+        //console.log('Veri yükleniyor...'); // Debug için
         const productsData = await productService.getFeaturedProducts();
-        console.log('Yüklenen veriler:', productsData); // Debug için
+        //console.log('Yüklenen veriler:', productsData); // Debug için
         setFeaturedProducts(productsData);
       } catch (error) {
-        console.error('Veri yüklenirken hata:', error);
+        //console.error('Veri yüklenirken hata:', error);
       } finally {
         setLoading(false);
       }
@@ -140,45 +141,7 @@ export default function Home() {
         <BestSellers />
 
         {/* Öne Çıkan Ürünler */}
-        <Container size="xl" mb={60}>
-          {featuredProducts.length > 0 && (
-            <Box>
-              <Group position="apart" mb={30}>
-                <Group spacing="xs">
-                  <Title order={2} size="h3" weight={600}>
-                    Öne Çıkan Ürünler
-                  </Title>
-                  <Badge variant="dot" color="orange" size="lg">
-                    Yeni
-                  </Badge>
-                </Group>
-                <Button 
-                  variant="subtle"
-                  component={Link}
-                  to="/products"
-                  color="dark"
-                  rightSection={<Text component="span" ml={4}>→</Text>}
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: 'transparent',
-                      transform: 'translateX(5px)',
-                    },
-                  }}
-                >
-                  Tümünü Gör
-                </Button>
-              </Group>
-
-              <Grid gutter={24}>
-                {featuredProducts.slice(0, 6).map((product) => (
-                  <Grid.Col key={product.id} span={{ base: 12, xs: 6, sm: 4, md: 3 }}>
-                    <ProductCard product={product} />
-                  </Grid.Col>
-                ))}
-              </Grid>
-            </Box>
-          )}
-        </Container>
+        <FeaturedProducts />
 
         {/* Markalar */}
         <Brands />

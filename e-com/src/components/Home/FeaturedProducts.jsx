@@ -1,58 +1,80 @@
-import { Container, Title, Box } from '@mantine/core';
+import { Container, Title, Box, Group, Badge, Skeleton } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
-import ProductCard from '../ProductCard';
-
-// Örnek ürün verileri
-const featuredProducts = [
-  {
-    id: 1,
-    name: 'Premium Deri Ceket',
-    price: 2499.99,
-    original_price: 3499.99,
-    image_url: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=600&auto=format&fit=crop',
-    categories: { name: 'Dış Giyim' },
-    stock_quantity: 10
-  },
-  {
-    id: 2,
-    name: 'Vintage Kot Pantolon',
-    price: 899.99,
-    image_url: 'https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&w=600&auto=format&fit=crop',
-    categories: { name: 'Pantolon' },
-    stock_quantity: 15
-  },
-  {
-    id: 3,
-    name: 'Özel Tasarım Çanta',
-    price: 1299.99,
-    original_price: 1799.99,
-    image_url: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=600&auto=format&fit=crop',
-    categories: { name: 'Aksesuar' },
-    stock_quantity: 5
-  },
-  {
-    id: 4,
-    name: 'Spor Ayakkabı',
-    price: 1599.99,
-    image_url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600&auto=format&fit=crop',
-    categories: { name: 'Ayakkabı' },
-    stock_quantity: 8
-  }
-];
+import { ProductCard } from '../ProductCard';
+import { useState, useEffect } from 'react';
+import { productService } from '../../services/supabase/products';
 
 export function FeaturedProducts() {
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadFeaturedProducts = async () => {
+      try {
+        const data = await productService.getFeaturedProducts();
+        console.log('Featured Products:', data);
+        setFeaturedProducts(data);
+      } catch (error) {
+        console.error('Öne çıkan ürünler yüklenirken hata:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFeaturedProducts();
+  }, []);
+
+  if (loading || featuredProducts.length === 0) return null;
+
   return (
     <Box py={40} bg="gray.0">
       <Container size="xl">
-        <Title order={2} mb={30}>
-          Öne Çıkan Ürünler
-        </Title>
+        <Group position="apart" mb={30}>
+          <Group spacing="xs">
+            <Title order={2} size="h3" weight={600}>
+              Öne Çıkan Ürünlerimiz
+            </Title>
+            <Badge variant="dot" color="orange" size="lg">
+              Seçkin
+            </Badge>
+          </Group>
+        </Group>
 
         <Carousel
-          slideSize={{ base: '100%', sm: '50%', md: '33.333333%' }}
-          slideGap="lg"
+          slideSize={{ base: '100%', sm: '50%', md: '33.333333%', lg: '25%' }}
+          slideGap="md"
           align="start"
           slidesToScroll={1}
+          withControls
+          loop={false}
+          containScroll="keepSnaps"
+          controlsOffset="xl"
+          styles={{
+            root: {
+              width: '100%'
+            },
+            control: {
+              opacity: 1,
+              backgroundColor: 'white',
+              border: '1px solid #eee',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              width: 40,
+              height: 40,
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                backgroundColor: 'white',
+                transform: 'scale(1.05)',
+              },
+              '&:disabled': {
+                opacity: 0,
+                cursor: 'default',
+                pointerEvents: 'none'
+              }
+            },
+            viewport: {
+              padding: '10px 0',
+            }
+          }}
         >
           {featuredProducts.map((product) => (
             <Carousel.Slide key={product.id}>

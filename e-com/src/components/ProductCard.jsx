@@ -108,9 +108,12 @@ const ProductCard = ({ product }) => {
         backgroundColor: theme.white,
         transition: 'all 200ms ease',
         cursor: 'pointer',
+        position: 'relative',
+        zIndex: 1,
         '&:hover': {
           transform: 'translateY(-5px)',
           boxShadow: theme.shadows.md,
+          zIndex: 2
         },
       })}
       onMouseEnter={() => setShowActions(true)}
@@ -163,11 +166,7 @@ const ProductCard = ({ product }) => {
             variant="transparent" 
             color="white" 
             size="md"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              navigate(`/products/${product.id}`);
-            }}
+            onClick={handleProductClick}
           >
             <IconEye size={18} />
           </ActionIcon>
@@ -236,5 +235,4 @@ const ProductCard = ({ product }) => {
   );
 };
 
-export default ProductCard;
 export { ProductCard }; 

@@ -21,7 +21,7 @@ import {
   Grid,
   useMantineTheme
 } from '@mantine/core';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { IconSearch, IconShoppingCart, IconHeart, IconUser, IconLogout, IconPackage, IconChevronDown } from '@tabler/icons-react';
 import { useAuthStore } from '../../stores/authStore';
@@ -278,7 +278,8 @@ export function AppHeader() {
   const { user, signOut, userProfile } = useAuthStore();
   const { items, loadCart } = useCartStore();
   const [opened, { toggle, close }] = useDisclosure(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [showSearch, setShowSearch] = useState(false);
   const navigate = useNavigate();
   const [scroll, scrollTo] = useWindowScroll();
@@ -330,7 +331,7 @@ export function AppHeader() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/products?search=${searchQuery}`);
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setShowSearch(false);
     }
   };
@@ -638,6 +639,12 @@ export function AppHeader() {
                       <IconSearch size={16} />
                     </ActionIcon>
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      setShowSearch(false);
+                    }
+                  }}
+                  autoFocus
                 />
               </form>
             </Container>
