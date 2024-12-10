@@ -4,28 +4,21 @@ import {
   Title,
   Table,
   Badge,
-  Menu,
-  ActionIcon,
-  Text,
   Group,
   TextInput,
-  Select,
-  Avatar,
+  ActionIcon,
+  Menu,
+  Text,
+  LoadingOverlay,
 } from '@mantine/core';
-import { IconDotsVertical, IconSearch } from '@tabler/icons-react';
+import { IconSearch, IconDotsVertical, IconUserShield, IconUserOff } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { supabase } from '../../../services/supabase/client';
-
-const userRoles = [
-  { value: 'user', label: 'Kullanıcı', color: 'blue' },
-  { value: 'admin', label: 'Admin', color: 'red' },
-];
 
 export default function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
 
   useEffect(() => {
     loadUsers();
@@ -33,25 +26,36 @@ export default function Users() {
 
   const loadUsers = async () => {
     try {
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) throw authError;
+      setLoading(true);
 
-      // Kullanıcı profil bilgilerini al
-      const { data: profiles, error: profileError } = await supabase
+      // Önce giriş yapan kullanıcının admin olup olmadığını kontrol et
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: profile } = await supabase
         .from('profiles')
-        .select('*');
+        .select('role')
+        .eq('id', user.id)
+        .single();
 
-      if (profileError) throw profileError;
+      if (profile?.role !== 'admin') {
+        notifications.show({
+          title: 'Yetkisiz Erişim',
+          message: 'Bu sayfaya erişim yetkiniz bulunmuyor.',
+          color: 'red',
+        });
+        return;
+      }
 
-      // Auth ve profil verilerini birleştir
-      const mergedUsers = authUsers.users.map(user => ({
-        ...user,
-        profile: profiles.find(profile => profile.user_id === user.id) || {}
-      }));
+      // Admin ise kullanıcıları getir
+      const { data: usersData, error: usersError } = await supabase
+        .from('auth_users_view')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      setUsers(mergedUsers);
+      if (usersError) throw usersError;
+
+      setUsers(usersData);
     } catch (error) {
+      console.error('Kullanıcılar yüklenirken hata:', error);
       notifications.show({
         title: 'Hata',
         message: 'Kullanıcılar yüklenirken bir hata oluştu',
@@ -67,7 +71,7 @@ export default function Users() {
       const { error } = await supabase
         .from('profiles')
         .update({ role: newRole })
-        .eq('user_id', userId);
+        .eq('id', userId);
 
       if (error) throw error;
 
@@ -79,6 +83,7 @@ export default function Users() {
 
       loadUsers();
     } catch (error) {
+      console.error('Rol güncelleme hatası:', error);
       notifications.show({
         title: 'Hata',
         message: 'Rol güncellenirken bir hata oluştu',
@@ -87,153 +92,95 @@ export default function Users() {
     }
   };
 
-  const handleUserStatus = async (userId, isActive) => {
+  const handleStatusChange = async (userId, newStatus) => {
     try {
-      if (isActive) {
-        await supabase.auth.admin.updateUserById(userId, { banned: false });
-      } else {
-        await supabase.auth.admin.updateUserById(userId, { banned: true });
-      }
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_active: newStatus })
+        .eq('id', userId);
+
+      if (error) throw error;
 
       notifications.show({
         title: 'Başarılı',
-        message: `Kullanıcı ${isActive ? 'aktifleştirildi' : 'devre dışı bırakıldı'}`,
+        message: `Kullanıcı ${newStatus ? 'aktif' : 'pasif'} duruma getirildi`,
         color: 'green',
       });
 
-      loadUsers();
+      loadUsers(); // Tabloyu yenile
     } catch (error) {
+      console.error('Durum güncelleme hatası:', error);
       notifications.show({
         title: 'Hata',
-        message: 'İşlem sırasında bir hata oluştu',
+        message: 'Durum güncellenirken bir hata oluştu',
         color: 'red',
       });
     }
   };
 
-  const getRoleBadge = (role) => {
-    const roleInfo = userRoles.find(r => r.value === role);
-    return (
-      <Badge color={roleInfo?.color || 'gray'}>
-        {roleInfo?.label || role}
-      </Badge>
-    );
-  };
-
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = 
-      user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesRole = !roleFilter || user.profile.role === roleFilter;
-
-    return matchesSearch && matchesRole;
-  });
+  const filteredUsers = users.filter(user => 
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Container size="xl">
-      <Title order={2} mb="xl">
-        Kullanıcılar
-      </Title>
-
-      <Group mb="md">
+      <Group position="apart" mb="xl">
+        <Title order={2}>Kullanıcılar</Title>
         <TextInput
-          placeholder="Email ara..."
+          placeholder="Kullanıcı ara..."
           icon={<IconSearch size={16} />}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ flex: 1 }}
-        />
-        <Select
-          placeholder="Rol Filtrele"
-          value={roleFilter}
-          onChange={setRoleFilter}
-          data={[
-            { value: '', label: 'Tümü' },
-            ...userRoles
-          ]}
-          style={{ width: 200 }}
+          style={{ width: 300 }}
         />
       </Group>
 
-      <Table>
-        <thead>
-          <tr>
-            <th>Kullanıcı</th>
-            <th>Email</th>
-            <th>Rol</th>
-            <th>Durum</th>
-            <th>Kayıt Tarihi</th>
-            <th>Son Giriş</th>
-            <th>İşlemler</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsers.map((user) => (
-            <tr key={user.id}>
-              <td>
-                <Group spacing="sm">
-                  <Avatar 
-                    color="blue" 
-                    radius="xl"
-                  >
-                    {user.email.charAt(0).toUpperCase()}
-                  </Avatar>
-                  <div>
-                    <Text size="sm" weight={500}>
-                      {user.profile.full_name || 'İsimsiz Kullanıcı'}
-                    </Text>
-                    <Text size="xs" color="dimmed">
-                      ID: {user.id}
-                    </Text>
-                  </div>
-                </Group>
-              </td>
-              <td>{user.email}</td>
-              <td>{getRoleBadge(user.profile.role || 'user')}</td>
-              <td>
-                <Badge 
-                  color={user.banned ? 'red' : 'green'}
-                >
-                  {user.banned ? 'Devre Dışı' : 'Aktif'}
-                </Badge>
-              </td>
-              <td>{new Date(user.created_at).toLocaleDateString('tr-TR')}</td>
-              <td>{user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString('tr-TR') : '-'}</td>
-              <td>
-                <Menu>
-                  <Menu.Target>
-                    <ActionIcon>
-                      <IconDotsVertical size={16} />
-                    </ActionIcon>
-                  </Menu.Target>
-                  <Menu.Dropdown>
-                    <Menu.Label>Rol Değiştir</Menu.Label>
-                    {userRoles.map((role) => (
-                      <Menu.Item
-                        key={role.value}
-                        onClick={() => handleRoleChange(user.id, role.value)}
-                        disabled={user.profile.role === role.value}
-                      >
-                        <Group>
-                          <Badge color={role.color} size="xs" variant="dot" />
-                          <Text size="sm">{role.label}</Text>
-                        </Group>
-                      </Menu.Item>
-                    ))}
-                    <Menu.Divider />
-                    <Menu.Item
-                      color={user.banned ? 'green' : 'red'}
-                      onClick={() => handleUserStatus(user.id, user.banned)}
-                    >
-                      {user.banned ? 'Aktifleştir' : 'Devre Dışı Bırak'}
-                    </Menu.Item>
-                  </Menu.Dropdown>
-                </Menu>
-              </td>
+      <div style={{ position: 'relative' }}>
+        <LoadingOverlay visible={loading} />
+        <Table>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'center' }}>E-posta</th>
+              <th style={{ textAlign: 'center' }}>Rol</th>
+              <th style={{ textAlign: 'center' }}>Kayıt Tarihi</th>
+              <th style={{ textAlign: 'center' }}>İşlemler</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {filteredUsers.map((user) => (
+              <tr key={user.id}>
+                <td style={{ textAlign: 'center' }}>{user.email}</td>
+                <td style={{ textAlign: 'center' }}>
+                  <Badge color={user.role === 'admin' ? 'red' : 'blue'}>
+                    {user.role === 'admin' ? 'Admin' : 'Kullanıcı'}
+                  </Badge>
+                </td>
+                <td style={{ textAlign: 'center' }}>
+                  {new Date(user.created_at).toLocaleDateString('tr-TR')}
+                </td>
+                <td style={{ textAlign: 'center' }}>
+                  <Menu position="bottom-end">
+                    <Menu.Target>
+                      <ActionIcon>
+                        <IconDotsVertical size={16} />
+                      </ActionIcon>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Menu.Label>Rol İşlemleri</Menu.Label>
+                      <Menu.Item
+                        icon={<IconUserShield size={16} />}
+                        onClick={() => handleRoleChange(user.id, user.role === 'admin' ? 'user' : 'admin')}
+                      >
+                        {user.role === 'admin' ? 'Kullanıcı Yap' : 'Admin Yap'}
+                      </Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
     </Container>
   );
 } 

@@ -1,5 +1,5 @@
 import { Group, Text, Menu, UnstyledButton, Avatar } from '@mantine/core';
-import { IconLogout, IconUser } from '@tabler/icons-react';
+import { IconLogout, IconHome } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../stores/authStore';
 
@@ -38,7 +38,12 @@ export function AdminHeader() {
         </Menu.Target>
 
         <Menu.Dropdown>
-          <Menu.Item icon={<IconUser size={14} />}>Profil</Menu.Item>
+          <Menu.Item 
+            icon={<IconHome size={14} />}
+            onClick={() => navigate('/')}
+          >
+            Ana Sayfa
+          </Menu.Item>
           <Menu.Item 
             color="red" 
             icon={<IconLogout size={14} />}
