@@ -359,21 +359,45 @@ export const productService = {
   },
 
   getBestSellers: async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        categories (
-          id,
-          name,
-          slug
-        )
-      `)
-      .order('sold_count', { ascending: false })
-      .limit(8);
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          categories (
+            id,
+            name,
+            slug
+          )
+        `)
+        .order('sold_count', { ascending: false })
+        .limit(8);
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+
+      // Aynı ürünleri birleştir ve satış sayılarını topla
+      const consolidatedData = data.reduce((acc, current) => {
+        const existingProduct = acc.find(item => item.id === current.id);
+        
+        if (existingProduct) {
+          // Eğer ürün zaten varsa satış sayısını güncelle
+          existingProduct.sold_count += current.sold_count;
+        } else {
+          // Yeni ürünü ekle
+          acc.push(current);
+        }
+        
+        return acc;
+      }, []);
+
+      // Satış sayısına göre tekrar sırala
+      consolidatedData.sort((a, b) => b.sold_count - a.sold_count);
+
+      return consolidatedData;
+    } catch (error) {
+      console.error('getBestSellers error:', error);
+      throw error;
+    }
   },
 
   getDiscountedProducts: async () => {

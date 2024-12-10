@@ -12,10 +12,10 @@ export function FeaturedProducts() {
     const loadFeaturedProducts = async () => {
       try {
         const data = await productService.getFeaturedProducts();
-        console.log('Featured Products:', data);
+        //console.log('Featured Products:', data);
         setFeaturedProducts(data);
       } catch (error) {
-        console.error('Öne çıkan ürünler yüklenirken hata:', error);
+        //console.error('Öne çıkan ürünler yüklenirken hata:', error);
       } finally {
         setLoading(false);
       }

@@ -83,16 +83,14 @@ export default function Dashboard() {
 
       // En çok satılan ürünleri çek
       const { data: topProductsData, error: topProductsError } = await supabase
-        .from('order_items')
+        .from('products')
         .select(`
-          quantity,
-          products (
-            id,
-            name,
-            price
-          )
+          id,
+          name,
+          price,
+          sold_count
         `)
-        .order('quantity', { ascending: false })
+        .order('sold_count', { ascending: false })
         .limit(5);
 
       if (topProductsError) throw topProductsError;
@@ -134,9 +132,9 @@ export default function Dashboard() {
 
       // Top ürünleri formatla
       const formattedTopProducts = topProductsData.map(item => ({
-        name: item.products.name,
-        quantity: item.quantity,
-        revenue: item.quantity * item.products.price
+        name: item.name,
+        quantity: item.sold_count,
+        revenue: item.sold_count * item.price
       }));
 
       setSalesData({
@@ -351,9 +349,21 @@ export default function Dashboard() {
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={salesData.topProducts}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
+          <XAxis 
+            dataKey="name" 
+            tick={{ fontSize: 12 }}
+            interval={0}
+            angle={-45}
+            textAnchor="end"
+            height={60}
+          />
           <YAxis />
-          <Tooltip formatter={(value) => `${value.toLocaleString('tr-TR')}`} />
+          <Tooltip 
+            formatter={(value, name) => [
+              `${value.toLocaleString('tr-TR')} ${name === 'revenue' ? 'TL' : 'Adet'}`,
+              name === 'revenue' ? 'Gelir' : 'Satış Adedi'
+            ]}
+          />
           <Bar dataKey="quantity" fill="#1971c2" name="Satış Adedi" />
         </BarChart>
       </ResponsiveContainer>
