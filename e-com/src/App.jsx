@@ -61,10 +61,29 @@ const theme = createTheme({
       styles: {
         root: {
           transition: 'all 0.3s ease',
+          backgroundColor: 'var(--mantine-color-body)',
           '&:hover': {
             transform: 'translateY(-5px)',
             boxShadow: '0 15px 30px rgba(0,0,0,0.1)'
           }
+        }
+      }
+    },
+    Paper: {
+      defaultProps: {
+        radius: 'md',
+        shadow: 'sm'
+      },
+      styles: {
+        root: {
+          backgroundColor: 'var(--mantine-color-body)'
+        }
+      }
+    },
+    AppShell: {
+      styles: {
+        main: {
+          backgroundColor: 'var(--mantine-color-gray-0)'
         }
       }
     },
@@ -79,22 +98,36 @@ const theme = createTheme({
         radius: 'md',
         size: 'md'
       }
+    },
+    NavLink: {
+      styles: (theme) => ({
+        root: {
+          '&[data-active]': {
+            backgroundColor: theme.colors.orange[6]
+          }
+        }
+      })
     }
   },
   defaultRadius: 'md',
   white: '#ffffff',
-  black: '#1A1B1E'
+  black: '#1A1B1E',
+  defaultGradient: {
+    from: 'orange',
+    to: 'red',
+    deg: 45
+  }
 });
 
 // Servis worker'ı kaydet
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => {
-        //console.log('SW registered:', registration);
+      .then(() => {
+        // Service worker başarıyla kaydedildi
       })
-      .catch(error => {
-        //console.log('SW registration failed:', error);
+      .catch(() => {
+        // Service worker kaydı başarısız
       });
   });
 }
@@ -107,25 +140,30 @@ function App() {
   }, [initAuth]);
 
   return (
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <MantineProvider theme={theme} defaultProps={{
-        Container: {
-          sizes: {
-            xs: 540,
-            sm: 720,
-            md: 960,
-            lg: 1140,
-            xl: 1320
+    <ErrorBoundary>
+      <MantineProvider 
+        theme={theme} 
+        defaultColorScheme="light"
+        forceColorScheme="light"
+        defaultProps={{
+          Container: {
+            sizes: {
+              xs: 540,
+              sm: 720,
+              md: 960,
+              lg: 1140,
+              xl: 1320
+            }
           }
-        }
-      }}>
-        <ErrorBoundary>
-          <Notifications position="top-right" zIndex={1000} />
+        }}
+      >
+        <Notifications position="top-right" zIndex={1000} />
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <AppRoutes />
           <AIChat />
-        </ErrorBoundary>
+        </BrowserRouter>
       </MantineProvider>
-    </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

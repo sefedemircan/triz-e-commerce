@@ -1,11 +1,10 @@
-import { AppShell, Burger, useMantineTheme } from '@mantine/core';
+import { AppShell, Burger } from '@mantine/core';
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { AdminNavbar } from './Navbar';
 import { AdminHeader } from './Header';
 
 export function AdminLayout() {
-  const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
 
   return (
@@ -17,8 +16,9 @@ export function AdminLayout() {
         collapsed: { mobile: !opened }
       }}
       padding="md"
+      bg="white"
     >
-      <AppShell.Header>
+      <AppShell.Header bg="white">
         <div style={{ 
           display: 'flex', 
           alignItems: 'center', 
@@ -35,7 +35,7 @@ export function AdminLayout() {
         </div>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">
+      <AppShell.Navbar p="md" bg="white">
         <AdminNavbar />
       </AppShell.Navbar>
 
