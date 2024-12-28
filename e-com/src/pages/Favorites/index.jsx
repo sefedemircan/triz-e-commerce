@@ -11,7 +11,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useFavoriteStore } from '../../stores/favoriteStore';
-import ProductCard from '../../components/ProductCard';
+import { ProductCard } from '../../components/ProductCard';
 
 export default function Favorites() {
   const { user } = useAuthStore();
