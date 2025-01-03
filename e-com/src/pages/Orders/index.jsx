@@ -37,6 +37,7 @@ export default function Orders() {
   useEffect(() => {
     const loadOrders = async () => {
       try {
+        setLoading(true);
         const data = await orderService.getOrders(user.id);
         setOrders(data);
       } catch (error) {
@@ -48,6 +49,8 @@ export default function Orders() {
 
     if (user) {
       loadOrders();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 

@@ -8,6 +8,8 @@ import Login from '../pages/Auth/Login';
 import Register from '../pages/Auth/Register';
 import Profile from '../pages/Profile';
 import Favorites from '../pages/Favorites';
+import Orders from '../pages/Orders';
+import Checkout from '../pages/Checkout';
 import CategoryPage from '../pages/CategoryPage';
 import AdminRoutes from './AdminRoutes';
 import ProtectedRoute from './ProtectedRoute';
@@ -37,6 +39,22 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <Favorites />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="orders"
+          element={
+            <ProtectedRoute>
+              <Orders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="checkout"
+          element={
+            <ProtectedRoute>
+              <Checkout />
             </ProtectedRoute>
           }
         />

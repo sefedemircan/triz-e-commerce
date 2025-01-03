@@ -7,26 +7,29 @@ export function AdminNavbar({ menuItems }) {
 
   return (
     <nav>
-      {menuItems.map((item) => (
-        <NavLink
-          key={item.path}
-          component={Link}
-          to={item.path}
-          label={item.label}
-          leftSection={<item.icon size={20} />}
-          active={location.pathname === item.path}
-          variant="filled"
-          styles={{
-            root: {
-              marginBottom: '0.5rem',
-              '&[data-active]': {
-                backgroundColor: 'var(--mantine-color-orange-6)',
-                color: 'var(--mantine-color-white)'
+      {menuItems.map((item) => {
+        const isActive = location.pathname === item.path;
+        return (
+          <NavLink
+            key={item.path}
+            component={Link}
+            to={item.path}
+            label={item.label}
+            leftSection={<item.icon size={20} />}
+            active={isActive}
+            variant="filled"
+            mb="xs"
+            styles={(theme) => ({
+              root: {
+                '&[dataActive]': {
+                  backgroundColor: theme.colors.orange[6],
+                  color: theme.white
+                }
               }
-            }
-          }}
-        />
-      ))}
+            })}
+          />
+        );
+      })}
     </nav>
   );
 }

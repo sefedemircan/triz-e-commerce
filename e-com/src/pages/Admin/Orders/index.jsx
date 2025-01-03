@@ -14,11 +14,12 @@ import {
   Stack,
   Paper,
   Image,
+  Loader,
 } from '@mantine/core';
 import { IconDotsVertical, IconSearch, IconEye } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { supabase } from '../../../services/supabase/client';
 import { orderService } from '../../../services/supabase/orders';
+import PropTypes from 'prop-types';
 
 const orderStatuses = [
   { value: 'pending', label: 'Onay Bekliyor', color: 'yellow' },
@@ -27,6 +28,176 @@ const orderStatuses = [
   { value: 'delivered', label: 'Teslim Edildi', color: 'green' },
   { value: 'cancelled', label: 'İptal Edildi', color: 'red' },
 ];
+
+const getStatusBadge = (status) => {
+  const statusInfo = orderStatuses.find(s => s.value === status);
+  return (
+    <Badge color={statusInfo?.color || 'gray'}>
+      {statusInfo?.label || status}
+    </Badge>
+  );
+};
+
+const OrderDetailsModal = ({ order, opened, onClose }) => {
+  if (!order) return null;
+
+  return (
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={`Sipariş Detayı #${order.id}`}
+      size="xl"
+    >
+      <Stack spacing="md">
+        {/* Müşteri Bilgileri */}
+        <Paper withBorder p="md">
+          <Title order={4} mb="md">Müşteri Bilgileri</Title>
+          <Stack spacing="xs">
+            <Group position="apart">
+              <Text weight={500}>E-posta:</Text>
+              <Text>{order.profiles?.email}</Text>
+            </Group>
+            <Group position="apart">
+              <Text weight={500}>Ad Soyad:</Text>
+              <Text>{order.profiles?.full_name}</Text>
+            </Group>
+          </Stack>
+        </Paper>
+
+        {/* Sipariş Bilgileri */}
+        <Paper withBorder p="md">
+          <Title order={4} mb="md">Sipariş Bilgileri</Title>
+          <Group position="apart" mb="md">
+            <Text weight={500}>Sipariş Tarihi:</Text>
+            <Text>{new Date(order.created_at).toLocaleString('tr-TR')}</Text>
+          </Group>
+
+          <Group position="apart" mb="md">
+            <Text weight={500}>Durum:</Text>
+            {getStatusBadge(order.status)}
+          </Group>
+
+          <Group position="apart" mb="md">
+            <Text weight={500}>Ödeme Yöntemi:</Text>
+            <Text>{order.payment_method}</Text>
+          </Group>
+        </Paper>
+
+        {/* Ürünler */}
+        <Paper withBorder p="md">
+          <Title order={4} mb="md">Ürünler</Title>
+          <Table>
+            <thead>
+              <tr>
+                <th>Ürün</th>
+                <th>Görsel</th>
+                <th>Birim Fiyat</th>
+                <th>Adet</th>
+                <th>Toplam</th>
+                <th>Stok Durumu</th>
+              </tr>
+            </thead>
+            <tbody>
+              {order.order_items.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.products.name}</td>
+                  <td>
+                    <Image
+                      src={item.products.image_url}
+                      width={60}
+                      height={60}
+                      radius="md"
+                      alt={item.products.name}
+                    />
+                  </td>
+                  <td>{item.price.toLocaleString('tr-TR')} TL</td>
+                  <td>{item.quantity}</td>
+                  <td>{(item.quantity * item.price).toLocaleString('tr-TR')} TL</td>
+                  <td>
+                    <Badge 
+                      color={item.products.stock_quantity > 0 ? 'green' : 'red'}
+                    >
+                      {item.products.stock_quantity} adet
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Paper>
+
+        {/* Teslimat Adresi */}
+        <Paper withBorder p="md">
+          <Title order={4} mb="md">Teslimat Adresi</Title>
+          <Text>{order.shipping_address.fullName}</Text>
+          <Text>{order.shipping_address.address}</Text>
+          <Text>{order.shipping_address.city}, {order.shipping_address.zipCode}</Text>
+          <Text>{order.shipping_address.phone}</Text>
+        </Paper>
+
+        {/* Fiyat Özeti */}
+        <Paper withBorder p="md">
+          <Stack spacing={5}>
+            <Group position="apart">
+              <Text>Ara Toplam:</Text>
+              <Text>{order.total_amount.toLocaleString('tr-TR')} TL</Text>
+            </Group>
+            <Group position="apart">
+              <Text>İndirim:</Text>
+              <Text color="green">-{order.discount.toLocaleString('tr-TR')} TL</Text>
+            </Group>
+            <Group position="apart">
+              <Text>Kargo:</Text>
+              <Text>{order.shipping_cost.toLocaleString('tr-TR')} TL</Text>
+            </Group>
+            <Group position="apart" style={{ marginTop: 10 }}>
+              <Text weight={500}>Toplam:</Text>
+              <Text weight={500} size="lg">{order.final_amount.toLocaleString('tr-TR')} TL</Text>
+            </Group>
+          </Stack>
+        </Paper>
+      </Stack>
+    </Modal>
+  );
+};
+
+OrderDetailsModal.propTypes = {
+  order: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    profiles: PropTypes.shape({
+      email: PropTypes.string,
+      full_name: PropTypes.string,
+    }),
+    created_at: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
+    payment_method: PropTypes.string.isRequired,
+    order_items: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        products: PropTypes.shape({
+          name: PropTypes.string.isRequired,
+          image_url: PropTypes.string.isRequired,
+          stock_quantity: PropTypes.number.isRequired,
+        }).isRequired,
+        price: PropTypes.number.isRequired,
+        quantity: PropTypes.number.isRequired,
+      })
+    ).isRequired,
+    shipping_address: PropTypes.shape({
+      fullName: PropTypes.string.isRequired,
+      address: PropTypes.string.isRequired,
+      city: PropTypes.string.isRequired,
+      zipCode: PropTypes.string.isRequired,
+      phone: PropTypes.string.isRequired,
+    }).isRequired,
+    total_amount: PropTypes.number.isRequired,
+    discount: PropTypes.number.isRequired,
+    shipping_cost: PropTypes.number.isRequired,
+    final_amount: PropTypes.number.isRequired,
+  }),
+  opened: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -42,9 +213,10 @@ export default function Orders() {
 
   const loadOrders = async () => {
     try {
-      const data = await orderService.getOrders();
+      const data = await orderService.getAllOrders();
       setOrders(data);
     } catch (error) {
+      console.error('Siparişler yüklenirken hata:', error);
       notifications.show({
         title: 'Hata',
         message: 'Siparişler yüklenirken bir hata oluştu',
@@ -86,15 +258,6 @@ export default function Orders() {
     }
   };
 
-  const getStatusBadge = (status) => {
-    const statusInfo = orderStatuses.find(s => s.value === status);
-    return (
-      <Badge color={statusInfo?.color || 'gray'}>
-        {statusInfo?.label || status}
-      </Badge>
-    );
-  };
-
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (order.profiles?.full_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -103,128 +266,13 @@ export default function Orders() {
     return matchesSearch && matchesStatus;
   });
 
-  const OrderDetailsModal = ({ order, opened, onClose }) => {
-    if (!order) return null;
-
+  if (loading) {
     return (
-      <Modal
-        opened={opened}
-        onClose={onClose}
-        title={`Sipariş Detayı #${order.id}`}
-        size="xl"
-      >
-        <Stack spacing="md">
-          {/* Müşteri Bilgileri */}
-          <Paper withBorder p="md">
-            <Title order={4} mb="md">Müşteri Bilgileri</Title>
-            <Stack spacing="xs">
-              <Group position="apart">
-                <Text weight={500}>E-posta:</Text>
-                <Text>{order.profiles?.email}</Text>
-              </Group>
-              <Group position="apart">
-                <Text weight={500}>Ad Soyad:</Text>
-                <Text>{order.profiles?.full_name}</Text>
-              </Group>
-            </Stack>
-          </Paper>
-
-          {/* Sipariş Bilgileri */}
-          <Paper withBorder p="md">
-            <Title order={4} mb="md">Sipariş Bilgileri</Title>
-            <Group position="apart" mb="md">
-              <Text weight={500}>Sipariş Tarihi:</Text>
-              <Text>{new Date(order.created_at).toLocaleString('tr-TR')}</Text>
-            </Group>
-
-            <Group position="apart" mb="md">
-              <Text weight={500}>Durum:</Text>
-              {getStatusBadge(order.status)}
-            </Group>
-
-            <Group position="apart" mb="md">
-              <Text weight={500}>Ödeme Yöntemi:</Text>
-              <Text>{order.payment_method}</Text>
-            </Group>
-          </Paper>
-
-          {/* Ürünler */}
-          <Paper withBorder p="md">
-            <Title order={4} mb="md">Ürünler</Title>
-            <Table>
-              <thead>
-                <tr>
-                  <th>Ürün</th>
-                  <th>Görsel</th>
-                  <th>Birim Fiyat</th>
-                  <th>Adet</th>
-                  <th>Toplam</th>
-                  <th>Stok Durumu</th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.order_items.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.products.name}</td>
-                    <td>
-                      <Image
-                        src={item.products.image_url}
-                        width={60}
-                        height={60}
-                        radius="md"
-                        alt={item.products.name}
-                      />
-                    </td>
-                    <td>{item.price.toLocaleString('tr-TR')} TL</td>
-                    <td>{item.quantity}</td>
-                    <td>{(item.quantity * item.price).toLocaleString('tr-TR')} TL</td>
-                    <td>
-                      <Badge 
-                        color={item.products.stock_quantity > 0 ? 'green' : 'red'}
-                      >
-                        {item.products.stock_quantity} adet
-                      </Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </Paper>
-
-          {/* Teslimat Adresi */}
-          <Paper withBorder p="md">
-            <Title order={4} mb="md">Teslimat Adresi</Title>
-            <Text>{order.shipping_address.fullName}</Text>
-            <Text>{order.shipping_address.address}</Text>
-            <Text>{order.shipping_address.city}, {order.shipping_address.zipCode}</Text>
-            <Text>{order.shipping_address.phone}</Text>
-          </Paper>
-
-          {/* Fiyat Özeti */}
-          <Paper withBorder p="md">
-            <Stack spacing={5}>
-              <Group position="apart">
-                <Text>Ara Toplam:</Text>
-                <Text>{order.total_amount.toLocaleString('tr-TR')} TL</Text>
-              </Group>
-              <Group position="apart">
-                <Text>İndirim:</Text>
-                <Text color="green">-{order.discount.toLocaleString('tr-TR')} TL</Text>
-              </Group>
-              <Group position="apart">
-                <Text>Kargo:</Text>
-                <Text>{order.shipping_cost.toLocaleString('tr-TR')} TL</Text>
-              </Group>
-              <Group position="apart" style={{ marginTop: 10 }}>
-                <Text weight={500}>Toplam:</Text>
-                <Text weight={500} size="lg">{order.final_amount.toLocaleString('tr-TR')} TL</Text>
-              </Group>
-            </Stack>
-          </Paper>
-        </Stack>
-      </Modal>
+      <Container size="xl" style={{ textAlign: 'center', paddingTop: '2rem' }}>
+        <Loader size="xl" />
+      </Container>
     );
-  };
+  }
 
   return (
     <Container size="xl">

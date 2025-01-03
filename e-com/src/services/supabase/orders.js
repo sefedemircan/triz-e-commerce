@@ -2,7 +2,8 @@ import { supabase } from './client';
 import { productService } from './products';
 
 export const orderService = {
-  getOrders: async () => {
+  // Admin için tüm siparişleri getir
+  getAllOrders: async () => {
     try {
       // Önce siparişleri ve ürün bilgilerini çekelim
       const { data: ordersData, error: ordersError } = await supabase
@@ -27,10 +28,11 @@ export const orderService = {
       if (ordersError) throw ordersError;
 
       // Kullanıcı e-postalarını auth.users tablosundan çekelim
+      const userIds = [...new Set(ordersData.map(order => order.user_id))];
       const { data: usersData, error: usersError } = await supabase
         .from('auth_users_view')
         .select('id, email')
-        .in('id', ordersData.map(order => order.user_id));
+        .in('id', userIds);
 
       if (usersError) {
         console.error('Kullanıcı bilgileri çekilemedi:', usersError);
@@ -39,8 +41,8 @@ export const orderService = {
       // Profil bilgilerini çekelim
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name')
-        .in('id', ordersData.map(order => order.user_id));
+        .select('id')
+        .in('id', userIds);
 
       if (profilesError) {
         console.error('Profil bilgileri çekilemedi:', profilesError);
@@ -57,6 +59,72 @@ export const orderService = {
 
       return ordersWithDetails;
     } catch (error) {
+      console.error('getAllOrders error:', error);
+      throw error;
+    }
+  },
+
+  // Normal kullanıcı için siparişleri getir
+  getOrders: async (userId) => {
+    if (!userId) throw new Error('User ID is required');
+
+    try {
+      // Önce siparişleri ve ürün bilgilerini çekelim
+      const { data: ordersData, error: ordersError } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          order_items (
+            id,
+            quantity,
+            price,
+            product_id,
+            products (
+              id,
+              name,
+              image_url,
+              stock_quantity
+            )
+          )
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (ordersError) throw ordersError;
+
+      // Kullanıcı e-postalarını auth.users tablosundan çekelim
+      const { data: usersData, error: usersError } = await supabase
+        .from('auth_users_view')
+        .select('id, email')
+        .eq('id', userId)
+        .single();
+
+      if (usersError) {
+        console.error('Kullanıcı bilgileri çekilemedi:', usersError);
+      }
+
+      // Profil bilgilerini çekelim
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .single();
+
+      if (profileError) {
+        console.error('Profil bilgileri çekilemedi:', profileError);
+      }
+
+      // Tüm verileri birleştirelim
+      const ordersWithDetails = ordersData.map(order => ({
+        ...order,
+        profiles: {
+          ...(profileData || {}),
+          email: usersData?.email
+        }
+      }));
+
+      return ordersWithDetails;
+    } catch (error) {
       console.error('getOrders error:', error);
       throw error;
     }
@@ -64,21 +132,21 @@ export const orderService = {
 
   updateOrderStatus: async (orderId, status) => {
     try {
-      console.log('Updating order status:', { orderId, status }); // Debug log
+      console.log('Updating order status:', { orderId, status });
 
       const { data: updateData, error: updateError } = await supabase
         .from('orders')
         .update({ status })
         .eq('id', orderId)
-        .select() // Güncellenen veriyi hemen alalım
+        .select()
         .single();
 
       if (updateError) {
-        console.error('Update error:', updateError); // Debug log
+        console.error('Update error:', updateError);
         throw updateError;
       }
 
-      console.log('Update successful:', updateData); // Debug log
+      console.log('Update successful:', updateData);
 
       // Güncellenmiş siparişi tüm detaylarıyla çek
       const { data: ordersData, error: ordersError } = await supabase
@@ -102,7 +170,7 @@ export const orderService = {
         .single();
 
       if (ordersError) {
-        console.error('Fetch error:', ordersError); // Debug log
+        console.error('Fetch error:', ordersError);
         throw ordersError;
       }
 
@@ -120,7 +188,7 @@ export const orderService = {
       // Profil bilgilerini çek
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('id, full_name')
+        .select('id')
         .eq('id', ordersData.user_id)
         .single();
 

@@ -1,7 +1,8 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
+import PropTypes from 'prop-types';
 
-export default function ProtectedRoute() {
+export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuthStore();
 
   if (loading) {
@@ -12,5 +13,9 @@ export default function ProtectedRoute() {
     return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />;
-} 
+  return children;
+}
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired
+}; 

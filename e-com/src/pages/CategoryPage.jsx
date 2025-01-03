@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Title, Grid, Text, Stack } from '@mantine/core';
 import { productService } from '../services/supabase/products';
-import ProductCard from '../components/ProductCard';
+import { ProductCard } from '../components/ProductCard';
 
 export default function CategoryPage() {
   const { slug, subSlug } = useParams();

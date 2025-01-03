@@ -8,6 +8,7 @@ export const useAuthStore = create((set) => ({
 
   initAuth: async () => {
     try {
+      set({ loading: true });
       // Mevcut oturumu kontrol et
       const { data: { session } } = await supabase.auth.getSession();
       
@@ -35,6 +36,7 @@ export const useAuthStore = create((set) => ({
 
   signIn: async (email, password) => {
     try {
+      set({ loading: true });
       const { data: { session }, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -49,24 +51,37 @@ export const useAuthStore = create((set) => ({
         .eq('id', session.user.id)
         .single();
 
-      set({ user: session.user, userProfile: profile });
+      set({ user: session.user, userProfile: profile, loading: false });
       return session;
     } catch (error) {
+      set({ loading: false });
       throw error;
     }
   },
 
   signOut: async () => {
-    await supabase.auth.signOut();
-    set({ user: null, userProfile: null });
+    try {
+      set({ loading: true });
+      await supabase.auth.signOut();
+      set({ user: null, userProfile: null, loading: false });
+    } catch (error) {
+      console.error('Sign out error:', error);
+      set({ loading: false });
+    }
   },
 
   signUp: async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    if (error) throw error;
-    set({ user: data.user });
+    try {
+      set({ loading: true });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      if (error) throw error;
+      set({ user: data.user, loading: false });
+    } catch (error) {
+      set({ loading: false });
+      throw error;
+    }
   },
 })); 
