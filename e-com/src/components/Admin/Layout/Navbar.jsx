@@ -1,42 +1,42 @@
-import { NavLink, Stack } from '@mantine/core';
-import { Link, useLocation } from 'react-router-dom';
-import {
-  IconDashboard,
-  IconBox,
-  IconCategory,
-  IconShoppingCart,
-  IconUsers,
-  IconSettings,
-} from '@tabler/icons-react';
+import { NavLink } from '@mantine/core';
+import { useLocation, Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
-const menuItems = [
-  { label: 'Dashboard', icon: IconDashboard, path: '/admin' },
-  { label: 'Ürünler', icon: IconBox, path: '/admin/products' },
-  { label: 'Kategoriler', icon: IconCategory, path: '/admin/categories' },
-  { label: 'Siparişler', icon: IconShoppingCart, path: '/admin/orders' },
-  { label: 'Kullanıcılar', icon: IconUsers, path: '/admin/users' },
-  { label: 'Ayarlar', icon: IconSettings, path: '/admin/settings' },
-];
-
-export function AdminNavbar() {
+export function AdminNavbar({ menuItems }) {
   const location = useLocation();
 
   return (
-    <Stack spacing={0}>
+    <nav>
       {menuItems.map((item) => (
         <NavLink
           key={item.path}
           component={Link}
           to={item.path}
           label={item.label}
-          leftSection={<item.icon size={20} stroke={1.5} />}
+          leftSection={<item.icon size={20} />}
           active={location.pathname === item.path}
           variant="filled"
-          classNames={{
-            root: 'nav-link',
+          styles={{
+            root: {
+              marginBottom: '0.5rem',
+              '&[data-active]': {
+                backgroundColor: 'var(--mantine-color-orange-6)',
+                color: 'var(--mantine-color-white)'
+              }
+            }
           }}
         />
       ))}
-    </Stack>
+    </nav>
   );
-} 
+}
+
+AdminNavbar.propTypes = {
+  menuItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      path: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+      icon: PropTypes.elementType.isRequired
+    })
+  ).isRequired
+}; 

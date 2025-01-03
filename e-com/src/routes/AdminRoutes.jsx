@@ -2,10 +2,9 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AdminLayout } from '../components/Admin/Layout';
 import Dashboard from '../pages/Admin/Dashboard';
 import Products from '../pages/Admin/Products';
-import Categories from '../pages/Admin/Categories';
 import Orders from '../pages/Admin/Orders';
-import Users from '../pages/Admin/Users';
-import Settings from '../pages/Admin/Settings';
+import Categories from '../pages/Admin/Categories';
+import StockManagement from '../pages/Admin/Stock';
 import { useAuthStore } from '../stores/authStore';
 
 export default function AdminRoutes() {
@@ -22,13 +21,12 @@ export default function AdminRoutes() {
 
   return (
     <Routes>
-      <Route element={<AdminLayout />}>
+      <Route path="/" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="products/*" element={<Products />} />
         <Route path="categories" element={<Categories />} />
         <Route path="orders" element={<Orders />} />
-        <Route path="users" element={<Users />} />
-        <Route path="settings" element={<Settings />} />
+        <Route path="stock" element={<StockManagement />} />
       </Route>
     </Routes>
   );

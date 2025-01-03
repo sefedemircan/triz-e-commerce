@@ -145,7 +145,7 @@ export const productService = {
       const { data, error } = await query;
 
       if (error) throw error;
-      return { data, totalPages: 1 };
+      return { data };
     } catch (error) {
       console.error('Get products error:', error);
       throw error;
@@ -222,10 +222,7 @@ export const productService = {
         throw error;
       }
 
-      return {
-        data: products,
-        totalPages: 1
-      };
+      return { data: products };
     } catch (error) {
       console.error('Get products error:', error);
       throw error;
@@ -296,69 +293,6 @@ export const productService = {
   },
 
   async getBestSellers() {
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        categories (
-          name,
-          slug
-        ),
-        order_items (
-          count
-        )
-      `)
-      .order('sold_count', { ascending: false })
-      .limit(10);
-
-    if (error) throw error;
-    return data;
-  },
-
-  async getDiscountedProducts() {
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        categories (
-          name,
-          slug
-        )
-      `)
-      .not('original_price', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(10);
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateProductStats(productId, quantity, isRefund = false) {
-    try {
-      console.log('Updating product stats:', {
-        productId,
-        quantity,
-        isRefund
-      });
-
-      const { error } = await supabase.rpc('update_product_stats', {
-        p_id: productId,
-        qty: quantity,
-        stock_operator: isRefund ? '+' : '-',
-        sold_operator: isRefund ? '-' : '+'
-      });
-
-      if (error) {
-        console.error('Update product stats error:', error);
-        throw error;
-      }
-    } catch (error) {
-      console.error('Update product stats error:', error);
-      throw error;
-    }
-  },
-
-  getBestSellers: async () => {
     try {
       const { data, error } = await supabase
         .from('products')
@@ -400,23 +334,53 @@ export const productService = {
     }
   },
 
-  getDiscountedProducts: async () => {
-    const { data, error } = await supabase
-      .from('products')
-      .select(`
-        *,
-        categories (
-          id,
-          name,
-          slug
-        )
-      `)
-      .not('original_price', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(8);
+  async getDiscountedProducts() {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select(`
+          *,
+          categories (
+            id,
+            name,
+            slug
+          )
+        `)
+        .not('original_price', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(8);
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('getDiscountedProducts error:', error);
+      throw error;
+    }
+  },
+
+  async updateProductStats(productId, quantity, isRefund = false) {
+    try {
+      console.log('Updating product stats:', {
+        productId,
+        quantity,
+        isRefund
+      });
+
+      const { error } = await supabase.rpc('update_product_stats', {
+        p_id: productId,
+        qty: quantity,
+        stock_operator: isRefund ? '+' : '-',
+        sold_operator: isRefund ? '-' : '+'
+      });
+
+      if (error) {
+        console.error('Update product stats error:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Update product stats error:', error);
+      throw error;
+    }
   },
 
   searchProducts
