@@ -3,6 +3,21 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { AdminNavbar } from './Navbar';
 import { AdminHeader } from './Header';
+import { 
+  IconDashboard, 
+  IconBox, 
+  IconCategory, 
+  IconShoppingCart, 
+  IconPackage 
+} from '@tabler/icons-react';
+
+const menuItems = [
+  { label: 'Dashboard', path: '/admin', icon: IconDashboard },
+  { label: 'Ürünler', path: '/admin/products', icon: IconBox },
+  { label: 'Kategoriler', path: '/admin/categories', icon: IconCategory },
+  { label: 'Siparişler', path: '/admin/orders', icon: IconShoppingCart },
+  { label: 'Stok Yönetimi', path: '/admin/stock', icon: IconPackage }
+];
 
 export function AdminLayout() {
   const [opened, setOpened] = useState(false);
@@ -36,7 +51,7 @@ export function AdminLayout() {
       </AppShell.Header>
 
       <AppShell.Navbar p="md" bg="white">
-        <AdminNavbar />
+        <AdminNavbar menuItems={menuItems} />
       </AppShell.Navbar>
 
       <AppShell.Main>

@@ -100,13 +100,14 @@ const theme = createTheme({
       }
     },
     NavLink: {
-      styles: (theme) => ({
+      styles: {
         root: {
           '&[data-active]': {
-            backgroundColor: theme.colors.orange[6]
+            backgroundColor: 'var(--mantine-color-orange-6)',
+            color: 'var(--mantine-color-white)'
           }
         }
-      })
+      }
     }
   },
   defaultRadius: 'md',
