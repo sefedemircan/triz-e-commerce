@@ -17,13 +17,14 @@ import {
   Divider,
   Card,
   SimpleGrid,
+  Box,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { IconTruck, IconShield, IconRefresh, IconCreditCard } from '@tabler/icons-react';
 import { productService } from '../../services/supabase/products.js';
-import { cartService } from '../../services/supabase/cart.js';
 import { useAuthStore } from '../../stores/authStore';
 import { useCartStore } from '../../stores/cartStore';
+import { Reviews } from '../../components/Reviews';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -78,7 +79,7 @@ export default function ProductDetail() {
         message: 'Ürün sepete eklendi',
         color: 'green',
       });
-    } catch (error) {
+    } catch {
       notifications.show({
         title: 'Hata',
         message: 'Ürün sepete eklenirken bir hata oluştu',
@@ -246,6 +247,7 @@ export default function ProductDetail() {
             <Tabs.Tab value="description">Ürün Açıklaması</Tabs.Tab>
             <Tabs.Tab value="specs">Özellikler</Tabs.Tab>
             <Tabs.Tab value="shipping">Kargo ve İade</Tabs.Tab>
+            <Tabs.Tab value="reviews">Yorumlar</Tabs.Tab>
           </Tabs.List>
 
           <Tabs.Panel value="description" pt="xl">
@@ -268,7 +270,7 @@ export default function ProductDetail() {
             <List>
               <List.Item>150 TL ve üzeri alışverişlerde kargo ücretsiz</List.Item>
               <List.Item>2-4 iş günü içinde kargoya verilir</List.Item>
-              <List.Item>Tüm Türkiye'ye gönderim yapılmaktadır</List.Item>
+              <List.Item>Tüm Türkiye&apos;ye gönderim yapılmaktadır</List.Item>
             </List>
             
             <Text mt="xl" mb="md">İade Koşulları:</Text>
@@ -278,12 +280,16 @@ export default function ProductDetail() {
               <List.Item>Kullanılmamış ve hasarsız olmalıdır</List.Item>
             </List>
           </Tabs.Panel>
+
+          <Tabs.Panel value="reviews" pt="xl">
+            <Reviews productId={product.id} />
+          </Tabs.Panel>
         </Tabs>
       </Paper>
 
       {/* Benzer Ürünler */}
       {relatedProducts.length > 0 && (
-        <div mt={50}>
+        <Box mt={50}>
           <Title order={2} mb="xl">Benzer Ürünler</Title>
           <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="lg">
             {relatedProducts.map((relatedProduct) => (
@@ -304,7 +310,7 @@ export default function ProductDetail() {
               </Card>
             ))}
           </SimpleGrid>
-        </div>
+        </Box>
       )}
     </Container>
   );
