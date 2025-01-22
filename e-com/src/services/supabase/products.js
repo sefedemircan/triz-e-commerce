@@ -170,7 +170,7 @@ export const productService = {
 
   getProductsByCategory: async (categorySlug, filters = {}) => {
     try {
-      console.log('Fetching products for category:', categorySlug);
+      //console.log('Fetching products for category:', categorySlug);
 
       // Önce kategoriyi kontrol edelim
       const { data: category } = await supabase
@@ -360,10 +360,10 @@ export const productService = {
 
   async updateProductStats(productId, quantity, isRefund = false) {
     try {
-      console.log('Updating product stats:', {
-        productId,
-        quantity,
-        isRefund
+      console.log('Updating:', {
+        //productId,
+        //quantity,
+        //isRefund
       });
 
       const { error } = await supabase.rpc('update_product_stats', {

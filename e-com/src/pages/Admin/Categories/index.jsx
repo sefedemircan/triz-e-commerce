@@ -74,7 +74,7 @@ export default function Categories() {
 
   const loadCategories = async () => {
     try {
-      console.log('Kategoriler yükleniyor...');
+      //console.log('Kategoriler yükleniyor...');
       const { data, error } = await supabase
         .from('categories')
         .select('*')
@@ -85,7 +85,7 @@ export default function Categories() {
         throw error;
       }
 
-      console.log('Yüklenen kategoriler:', data);
+      //console.log('Yüklenen kategoriler:', data);
       setCategories(data || []);
     } catch (error) {
       console.error('Detaylı hata:', error);

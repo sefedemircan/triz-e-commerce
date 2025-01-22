@@ -102,7 +102,7 @@ const theme = createTheme({
     NavLink: {
       styles: {
         root: {
-          '&[data-active]': {
+          '&[dataActive]': {
             backgroundColor: 'var(--mantine-color-orange-6)',
             color: 'var(--mantine-color-white)'
           }

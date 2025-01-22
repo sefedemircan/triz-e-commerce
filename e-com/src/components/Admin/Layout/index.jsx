@@ -8,7 +8,10 @@ import {
   IconBox, 
   IconCategory, 
   IconShoppingCart, 
-  IconPackage 
+  IconPackage,
+  IconUsers,
+  IconSettings,
+  IconMessageCircle,
 } from '@tabler/icons-react';
 
 const menuItems = [
@@ -16,7 +19,10 @@ const menuItems = [
   { label: 'Ürünler', path: '/admin/products', icon: IconBox },
   { label: 'Kategoriler', path: '/admin/categories', icon: IconCategory },
   { label: 'Siparişler', path: '/admin/orders', icon: IconShoppingCart },
-  { label: 'Stok Yönetimi', path: '/admin/stock', icon: IconPackage }
+  { label: 'Stok Yönetimi', path: '/admin/stock', icon: IconPackage },
+  { label: 'Yorum Moderasyonu', path: '/admin/reviews', icon: IconMessageCircle },
+  { label: 'Kullanıcılar', path: '/admin/users', icon: IconUsers },
+  { label: 'Ayarlar', path: '/admin/settings', icon: IconSettings },
 ];
 
 export function AdminLayout() {

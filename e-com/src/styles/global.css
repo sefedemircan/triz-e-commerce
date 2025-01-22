@@ -1,5 +1,5 @@
 /* Admin navbar styles */
-.mantine-NavLink-root[data-active] {
+.mantine-NavLink-root[dataActive] {
   background-color: var(--mantine-color-orange-7);
   color: var(--mantine-color-white);
 }

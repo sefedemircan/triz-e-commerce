@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Avatar, Card, Group, Rating, Stack, Text, Title, Alert } from '@mantine/core';
-import { IconAlertCircle, IconUser } from '@tabler/icons-react';
-import { getProductReviews } from '../../services/supabase/reviews';
-import { formatDistance } from 'date-fns';
+import { Stack, Text, Group, Avatar, Paper } from '@mantine/core';
+import { getReviews } from '../../services/supabase/reviews';
+import { formatDistanceToNow } from 'date-fns';
 import { tr } from 'date-fns/locale';
 import PropTypes from 'prop-types';
 
@@ -11,21 +10,21 @@ export function ReviewList({ productId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadReviews = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getProductReviews(productId);
-      setReviews(data);
-    } catch (err) {
-      console.error('Yorumlar yüklenirken hata:', err);
-      setError('Yorumlar yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const loadReviews = async () => {
+      try {
+        const data = await getReviews(productId);
+        // Sadece onaylanmış yorumları göster
+        const approvedReviews = data.filter(review => review.is_approved);
+        setReviews(approvedReviews);
+      } catch (error) {
+        console.error("Yorumlar yüklenirken hata:", error);
+        setError("Yorumlar yüklenirken bir hata oluştu.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadReviews();
   }, [productId]);
 
@@ -34,57 +33,49 @@ export function ReviewList({ productId }) {
   }
 
   if (error) {
-    return (
-      <Alert icon={<IconAlertCircle size={16} />} title="Hata" color="red">
-        {error}
-      </Alert>
-    );
+    return <Text color="red">{error}</Text>;
   }
 
-  if (!reviews || reviews.length === 0) {
-    return <Text>Henüz yorum yapılmamış.</Text>;
+  if (reviews.length === 0) {
+    return <Text>Bu ürün için henüz onaylanmış yorum bulunmuyor.</Text>;
   }
 
   return (
-    <Stack>
-      <Title order={3} mb="md">
-        Müşteri Yorumları ({reviews.length})
-      </Title>
-
+    <Stack spacing="md">
       {reviews.map((review) => (
-        <Card key={review.id} withBorder>
-          <Group>
-            <Avatar 
-              color="orange"
-              radius="xl"
-            >
-              <IconUser size={24} />
-            </Avatar>
-            <div style={{ flex: 1 }}>
-              <Group justify="space-between">
-                <Text fw={500}>
-                  {review.user?.email?.split('@')[0] || 'Anonim'}
-                </Text>
-                <Text size="sm" c="dimmed">
-                  {formatDistance(new Date(review.created_at), new Date(), {
+        <Paper key={review.id} p="md" withBorder>
+          <Group position="apart" mb="xs">
+            <Group>
+              <Avatar 
+                radius="xl" 
+                color="blue"
+              >
+                {review.auth_users_view?.email?.charAt(0).toUpperCase()}
+              </Avatar>
+              <div>
+                <Text size="sm">{review.auth_users_view?.email}</Text>
+                <Text size="xs" color="dimmed">
+                  {formatDistanceToNow(new Date(review.created_at), {
                     addSuffix: true,
                     locale: tr,
                   })}
                 </Text>
-              </Group>
-              <Rating value={review.rating} readOnly />
-              {review.is_verified_purchase && (
-                <Text size="sm" color="green" mt={4}>
-                  Doğrulanmış Satın Alma
+              </div>
+            </Group>
+            <Group spacing={4}>
+              {[...Array(5)].map((_, i) => (
+                <Text
+                  key={i}
+                  color={i < review.rating ? "yellow" : "gray"}
+                  style={{ opacity: i < review.rating ? 1 : 0.5 }}
+                >
+                  ★
                 </Text>
-              )}
-            </div>
+              ))}
+            </Group>
           </Group>
-
-          {review.comment && (
-            <Text mt="sm">{review.comment}</Text>
-          )}
-        </Card>
+          <Text size="sm">{review.comment}</Text>
+        </Paper>
       ))}
     </Stack>
   );

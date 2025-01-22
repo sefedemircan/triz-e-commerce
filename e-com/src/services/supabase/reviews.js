@@ -42,91 +42,152 @@ export const getProductReviews = async (productId) => {
 };
 
 // Yorum ekle
-export const addReview = async ({ productId, userId, rating, comment }) => {
+export async function addReview(review) {
   const { data, error } = await supabase
-    .from('reviews')
-    .insert([
-      {
-        product_id: productId,
-        user_id: userId,
-        rating,
-        comment,
-        created_at: new Date().toISOString(),
-      },
-    ])
-    .select();
-
-  if (error) {
-    console.error('Yorum eklenirken hata:', error);
-    throw error;
-  }
-
-  // Kullanıcı bilgisini al
-  const { data: userData } = await supabase
-    .from('auth_users_view')
-    .select('email')
-    .eq('id', userId)
+    .from("reviews")
+    .insert([review])
+    .select()
     .single();
 
-  return [{
-    ...data[0],
-    user: userData
-  }];
-};
+  if (error) throw error;
+  return data;
+}
 
-// Yorumu güncelle
-export const updateReview = async ({ reviewId, rating, comment }) => {
+// Ürüne ait yorumları getir
+export async function getReviews(productId) {
   const { data, error } = await supabase
-    .from('reviews')
-    .update({
+    .from("reviews")
+    .select(`
+      id,
       rating,
       comment,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', reviewId)
-    .select();
+      created_at,
+      updated_at,
+      is_approved,
+      is_verified_purchase,
+      user_id,
+      product_id,
+      auth_users_view!user_id (
+        id,
+        email,
+        created_at,
+        role
+      ),
+      products!product_id (
+        id,
+        name
+      )
+    `)
+    .eq("product_id", productId)
+    .eq("is_approved", true)
+    .order("created_at", { ascending: false });
 
-  if (error) {
+  if (error) throw error;
+  return data;
+}
+
+// Tüm yorumları getir (admin için)
+export async function getAllReviews() {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select(`
+      id,
+      rating,
+      comment,
+      created_at,
+      updated_at,
+      is_approved,
+      is_verified_purchase,
+      user_id,
+      product_id,
+      auth_users_view!user_id (
+        id,
+        email,
+        created_at,
+        role
+      ),
+      products!product_id (
+        id,
+        name
+      )
+    `)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+// Yorumu güncelle
+export async function updateReview(reviewId, updates) {
+  try {
+    // Sadece güncelleme işlemi
+    const { error: updateError } = await supabase
+      .from('reviews')
+      .update({
+        is_approved: updates.is_approved,
+        updated_at: updates.updated_at
+      })
+      .eq('id', reviewId);
+
+    if (updateError) {
+      console.error('Yorum güncellenirken hata:', updateError);
+      throw updateError;
+    }
+
+    // Güncellenmiş veriyi ayrı bir sorgu ile al
+    const { data: review, error: fetchError } = await supabase
+      .from('reviews')
+      .select(`
+        id,
+        rating,
+        comment,
+        created_at,
+        updated_at,
+        is_approved,
+        is_verified_purchase,
+        user_id,
+        product_id,
+        auth_users_view!user_id (
+          id,
+          email,
+          created_at,
+          role
+        ),
+        products!product_id (
+          id,
+          name
+        )
+      `)
+      .eq('id', reviewId)
+      .single();
+
+    if (fetchError) {
+      console.error('Güncellenmiş yorum getirilirken hata:', fetchError);
+      throw fetchError;
+    }
+
+    return review;
+  } catch (error) {
     console.error('Yorum güncellenirken hata:', error);
     throw error;
   }
-
-  // Kullanıcı bilgisini al
-  const { data: userData } = await supabase
-    .from('auth_users_view')
-    .select('email')
-    .eq('id', data[0].user_id)
-    .single();
-
-  return [{
-    ...data[0],
-    user: userData
-  }];
-};
+}
 
 // Yorumu sil
-export const deleteReview = async (reviewId) => {
+export async function deleteReview(reviewId) {
   const { error } = await supabase
-    .from('reviews')
+    .from("reviews")
     .delete()
-    .eq('id', reviewId);
+    .eq("id", reviewId);
 
-  if (error) {
-    console.error('Yorum silinirken hata:', error);
-    throw error;
-  }
-  return true;
-};
+  if (error) throw error;
+}
 
 // Ürünün ortalama puanını getir
-export const getProductAverageRating = async (productId) => {
+export async function getAverageRating(productId) {
   const { data, error } = await supabase
-    .rpc('get_product_average_rating', { product_id: productId });
+    .rpc("calculate_average_rating", { product_id: productId });
 
-  if (error) {
-    console.error('Ortalama puan hesaplanırken hata:', error);
-    throw error;
-  }
-
+  if (error) throw error;
   return data || 0;
-}; 
+} 

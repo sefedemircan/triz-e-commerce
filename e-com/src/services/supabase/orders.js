@@ -132,7 +132,7 @@ export const orderService = {
 
   updateOrderStatus: async (orderId, status) => {
     try {
-      console.log('Updating order status:', { orderId, status });
+      //console.log('Updating order status:', { orderId, status });
 
       const { data: updateData, error: updateError } = await supabase
         .from('orders')
@@ -145,7 +145,7 @@ export const orderService = {
         console.error('Update error:', updateError);
         throw updateError;
       }
-
+      
       console.log('Update successful:', updateData);
 
       // Güncellenmiş siparişi tüm detaylarıyla çek
@@ -214,7 +214,7 @@ export const orderService = {
 
   createOrder: async (orderData) => {
     try {
-      console.log('Creating order with data:', orderData);
+      //console.log('Creating order with data:', orderData);
 
       // Sipariş verilerini hazırla
       const orderPayload = {
@@ -240,7 +240,7 @@ export const orderService = {
         throw orderError;
       }
 
-      console.log('Order created:', order);
+      //console.log('Order created:', order);
 
       try {
         // Sipariş detaylarını ekle
@@ -251,7 +251,7 @@ export const orderService = {
           price: item.products.price
         }));
 
-        console.log('Creating order items:', orderItems);
+        //console.log('Creating order items:', orderItems);
 
         const { error: itemsError } = await supabase
           .from('order_items')

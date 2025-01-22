@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Group, Rating, Textarea } from '@mantine/core';
+import { Button, Group, Rating, Stack, Text, Textarea } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { addReview } from '../../services/supabase/reviews';
 import { useAuthStore } from '../../stores/authStore';
@@ -26,25 +26,29 @@ export function ReviewForm({ productId, onReviewAdded }) {
     try {
       setLoading(true);
       await addReview({
-        productId,
-        userId: user.id,
+        product_id: productId,
+        user_id: user.id,
         rating,
         comment,
+        is_approved: false,
+        created_at: new Date().toISOString(),
+        is_verified_purchase: false // Satın alma kontrolü eklenebilir
       });
 
       notifications.show({
         title: 'Başarılı',
-        message: 'Yorumunuz başarıyla eklendi',
+        message: 'Yorumunuz başarıyla gönderildi ve moderasyon onayı bekliyor.',
         color: 'green',
       });
 
       setRating(0);
       setComment('');
       onReviewAdded?.();
-    } catch {
+    } catch (error) {
+      console.error('Yorum gönderilirken hata:', error);
       notifications.show({
         title: 'Hata',
-        message: 'Yorum eklenirken bir hata oluştu',
+        message: 'Yorumunuz gönderilirken bir hata oluştu.',
         color: 'red',
       });
     } finally {
@@ -56,25 +60,39 @@ export function ReviewForm({ productId, onReviewAdded }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <Group mb="md">
-        <Rating value={rating} onChange={setRating} size="lg" />
-      </Group>
-      
-      <Textarea
-        placeholder="Yorumunuzu yazın..."
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        minRows={3}
-        mb="md"
-      />
+      <Stack spacing="md">
+        <div>
+          <Text size="sm" weight={500} mb={4}>
+            Puanınız
+          </Text>
+          <Rating value={rating} onChange={setRating} size="lg" />
+        </div>
 
-      <Button 
-        type="submit" 
-        loading={loading}
-        disabled={!rating}
-      >
-        Yorum Ekle
-      </Button>
+        <div>
+          <Text size="sm" weight={500} mb={4}>
+            Yorumunuz
+          </Text>
+          <Textarea
+            placeholder="Yorumunuzu yazın..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            minRows={3}
+          />
+        </div>
+
+        <Group position="apart">
+          <Text size="xs" color="dimmed">
+            Yorumunuz moderasyon onayından sonra yayınlanacaktır.
+          </Text>
+          <Button 
+            type="submit" 
+            loading={loading}
+            disabled={!rating}
+          >
+            Yorum Ekle
+          </Button>
+        </Group>
+      </Stack>
     </form>
   );
 }

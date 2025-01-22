@@ -5,6 +5,7 @@ import Products from '../pages/Admin/Products';
 import Orders from '../pages/Admin/Orders';
 import Categories from '../pages/Admin/Categories';
 import StockManagement from '../pages/Admin/Stock';
+import ReviewModeration from '../pages/Admin/Reviews';
 import { useAuthStore } from '../stores/authStore';
 
 export default function AdminRoutes() {
@@ -27,6 +28,7 @@ export default function AdminRoutes() {
         <Route path="categories" element={<Categories />} />
         <Route path="orders" element={<Orders />} />
         <Route path="stock" element={<StockManagement />} />
+        <Route path="reviews" element={<ReviewModeration />} />
       </Route>
     </Routes>
   );

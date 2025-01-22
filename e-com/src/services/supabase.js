@@ -13,7 +13,7 @@ export const productService = {
         throw error;
       }
 
-      console.log('Gelen veriler:', data);
+      //console.log('Gelen veriler:', data);
       return data;
     } catch (error) {
       console.error('getFeaturedProducts error:', error);
