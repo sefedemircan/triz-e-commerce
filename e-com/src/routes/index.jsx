@@ -13,53 +13,56 @@ import Checkout from '../pages/Checkout';
 import CategoryPage from '../pages/CategoryPage';
 import AdminRoutes from './AdminRoutes';
 import ProtectedRoute from './ProtectedRoute';
+import RouteLoader from '../components/RouteLoader';
 
 export default function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/" element={<AppLayout />}>
-        <Route index element={<Home />} />
-        <Route path="products" element={<Products />} />
-        <Route path="products/:id" element={<ProductDetail />} />
-        <Route path="cart" element={<Cart />} />
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
-        <Route path="kategori/:slug" element={<CategoryPage />} />
-        <Route path="kategori/:slug/:subSlug" element={<CategoryPage />} />
-        <Route
-          path="profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="favorites"
-          element={
-            <ProtectedRoute>
-              <Favorites />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="orders"
-          element={
-            <ProtectedRoute>
-              <Orders />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="checkout"
-          element={
-            <ProtectedRoute>
-              <Checkout />
-            </ProtectedRoute>
-          }
-        />
-      </Route>
-      <Route path="/admin/*" element={<AdminRoutes />} />
-    </Routes>
+    <RouteLoader>
+      <Routes>
+        <Route path="/" element={<AppLayout />}>
+          <Route index element={<Home />} />
+          <Route path="products" element={<Products />} />
+          <Route path="products/:id" element={<ProductDetail />} />
+          <Route path="cart" element={<Cart />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="kategori/:slug" element={<CategoryPage />} />
+          <Route path="kategori/:slug/:subSlug" element={<CategoryPage />} />
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="favorites"
+            element={
+              <ProtectedRoute>
+                <Favorites />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="orders"
+            element={
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="checkout"
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+        <Route path="/admin/*" element={<AdminRoutes />} />
+      </Routes>
+    </RouteLoader>
   );
 } 

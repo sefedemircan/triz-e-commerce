@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Container, Title, Grid, Text, Stack } from '@mantine/core';
 import { productService } from '../services/supabase/products';
 import { ProductCard } from '../components/ProductCard';
+import ContentSkeleton from '../components/ContentSkeleton';
 
 export default function CategoryPage() {
   const { slug, subSlug } = useParams();
@@ -38,7 +39,7 @@ export default function CategoryPage() {
   if (loading) {
     return (
       <Container size="xl" py="xl">
-        <Text>Yükleniyor...</Text>
+        <ContentSkeleton count={12} />
       </Container>
     );
   }
