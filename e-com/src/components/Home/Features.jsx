@@ -1,4 +1,5 @@
-import { Container, SimpleGrid, Paper, Text, Title } from '@mantine/core';
+import { Container, SimpleGrid, Paper, Text } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 import { 
   IconTruck, 
   IconShieldCheck, 
@@ -7,29 +8,31 @@ import {
 } from '@tabler/icons-react';
 
 export function Features() {
+  const { t } = useTranslation();
+
   const features = [
     {
       icon: IconTruck,
-      title: 'Ücretsiz Kargo',
-      description: '500 TL üzeri alışverişlerde',
+      title: t('homePage.features.freeShipping.title'),
+      description: t('homePage.features.freeShipping.description'),
       color: 'orange'
     },
     {
       icon: IconShieldCheck,
-      title: 'Güvenli Ödeme',
-      description: '256-bit SSL koruması',
+      title: t('homePage.features.securePayment.title'),
+      description: t('homePage.features.securePayment.description'),
       color: 'green'
     },
     {
       icon: IconCreditCard,
-      title: 'Taksit İmkanı',
-      description: '9 taksit seçeneği',
+      title: t('homePage.features.installment.title'),
+      description: t('homePage.features.installment.description'),
       color: 'blue'
     },
     {
       icon: IconHeadset,
-      title: '7/24 Destek',
-      description: 'Canlı destek hizmeti',
+      title: t('homePage.features.support.title'),
+      description: t('homePage.features.support.description'),
       color: 'grape'
     }
   ];

@@ -3,10 +3,12 @@ import { Carousel } from '@mantine/carousel';
 import { ProductCard } from '../ProductCard';
 import { useState, useEffect } from 'react';
 import { productService } from '../../services/supabase/products';
+import { useTranslation } from 'react-i18next';
 
 export function FeaturedProducts() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadFeaturedProducts = async () => {
@@ -32,10 +34,10 @@ export function FeaturedProducts() {
         <Group position="apart" mb={30}>
           <Group spacing="xs">
             <Title order={2} size="h3" weight={600}>
-              Öne Çıkan Ürünlerimiz
+              {t('homePage.featuredProducts.title')}
             </Title>
             <Badge variant="dot" color="orange" size="lg">
-              Seçkin
+              {t('homePage.featuredProducts.selected')}
             </Badge>
           </Group>
         </Group>

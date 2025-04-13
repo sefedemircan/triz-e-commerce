@@ -3,10 +3,12 @@ import { brandService } from '../../services/supabase/brands';
 import { Container, Title, Box, Skeleton, Group, Badge } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export function Brands() {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadBrands = async () => {
@@ -31,7 +33,7 @@ export function Brands() {
         <Group position="apart" mb={30}>
           <Group spacing="xs">
             <Title order={2} size="h3" weight={600}>
-              Popüler Markalar
+              {t('homePage.brands.title')}
             </Title>
             <Badge variant="dot" color="orange" size="lg">
               Seçkin

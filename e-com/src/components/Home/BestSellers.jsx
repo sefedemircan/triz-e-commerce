@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { productService } from '../../services/supabase/products';
-import { Container, Title, Box, Skeleton, Badge, Group } from '@mantine/core';
+import { Container, Title, Skeleton, Badge, Group } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import { ProductCard } from '../ProductCard';
 
 export function BestSellers() {
+  const { t } = useTranslation();
   const [bestSellers, setBestSellers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,10 +32,10 @@ export function BestSellers() {
       <Group position="apart" mb={30}>
         <Group spacing="xs">
           <Title order={2} size="h3" weight={600}>
-            En Çok Satanlar
+            {t('homePage.bestSellers.title')}
           </Title>
           <Badge variant="dot" color="orange" size="lg">
-            Popüler
+            {t('homePage.bestSellers.popular')}
           </Badge>
         </Group>
       </Group>

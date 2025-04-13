@@ -1,0 +1,86 @@
+{
+  "homePage": {
+    "popularCategories": {
+      "title": "Popular Categories",
+      "trend": "Trending",
+      "categories": {
+        "electronics": "Electronics",
+        "clothing": "Clothing",
+        "homeAndLiving": "Home & Living",
+        "cosmetics": "Cosmetics",
+        "shoesAndBags": "Shoes & Bags",
+        "sportsAndOutdoor": "Sports & Outdoor"
+      }
+    },
+    "heroSection": {
+      "slides": [
+        "Summer Sales",
+        "Special Collection",
+        "New Season Products"
+      ]
+    },
+    "features": {
+      "freeShipping": {
+        "title": "Free Shipping",
+        "description": "On orders over ₺500"
+      },
+      "securePayment": {
+        "title": "Secure Payment",
+        "description": "256-bit SSL protection"
+      },
+      "installment": {
+        "title": "Installment Options",
+        "description": "Pay in 9 installments"
+      },
+      "support": {
+        "title": "24/7 Support",
+        "description": "Live support service"
+      }
+    },
+    "campaigns": {
+      "title": "Campaigns & Offers",
+      "discount": "Discount"
+    },
+    "bestSellers": {
+      "title": "Best Sellers",
+      "popular": "Popular"
+    },
+    "featuredProducts": {
+      "title": "Featured Products",
+      "selected": "Selected"
+    },
+    "brands": {
+      "title": "Popular Brands"
+    },
+    "header": {
+      "allCategories": "All Categories",
+      "search": "Search products, categories or brands...",
+      "profile": "My Profile",
+      "orders": "My Orders",
+      "adminPanel": "Admin Panel",
+      "myAccount": "My Account",
+      "login": "Login",
+      "logout": "Logout",
+      "menu": "Menu",
+      "favorites": "Favorites"
+    },
+    "categories": {
+      "electronics": "Electronics",
+      "homeAndLiving": "Home & Living",
+      "cosmetics": "Cosmetics",
+      "shoesAndBags": "Shoes & Bags",
+      "sportsAndOutdoor": "Sports & Outdoor"
+    }
+  },
+  "common": {
+    "language": "Language",
+    "turkish": "Turkish",
+    "english": "English"
+  },
+  "productDetail": {
+    "addToCart": "Add to Cart",
+    "addToFavorites": "Add to Favorites",
+    "addToCartSuccess": "Product added to cart successfully",
+    "addToFavoritesSuccess": "Product added to favorites successfully"
+  }
+} 

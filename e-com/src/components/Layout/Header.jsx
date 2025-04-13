@@ -1,5 +1,4 @@
 import { 
-  AppShell, 
   Container, 
   Group, 
   Button, 
@@ -9,7 +8,6 @@ import {
   Stack,
   TextInput,
   ActionIcon,
-  Badge,
   Box,
   Menu,
   Avatar,
@@ -28,30 +26,32 @@ import { useAuthStore } from '../../stores/authStore';
 import { useState, useEffect, useRef } from 'react';
 import { useCartStore } from '../../stores/cartStore';
 import { useWindowScroll } from '@mantine/hooks';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../LanguageSwitcher';
 
 const categories = [
   {
-    title: 'Elektronik',
+    title: 'electronics',
     slug: 'elektronik',
     navLink: '/kategori/elektronik'
   },
   {
-    title: 'Ev & Yaşam',
+    title: 'homeAndLiving',
     slug: 'ev-yasam',
     navLink: '/kategori/ev-yasam'
   },
   {
-    title: 'Kozmetik',
+    title: 'cosmetics',
     slug: 'kozmetik',
     navLink: '/kategori/kozmetik'
   },
   {
-    title: 'Ayakkabı & Çanta',
+    title: 'shoesAndBags',
     slug: 'ayakkabi-canta',
     navLink: '/kategori/ayakkabi-canta'
   },
   {
-    title: 'Spor & Outdoor',
+    title: 'sportsAndOutdoor',
     slug: 'spor-outdoor',
     navLink: '/kategori/spor-outdoor'
   }
@@ -59,7 +59,7 @@ const categories = [
 
 const subCategories = [
   {
-    mainCategory: 'Elektronik',
+    mainCategory: 'electronics',
     title: 'Telefon',
     items: [
       'Cep Telefonu',
@@ -74,7 +74,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Elektronik',
+    mainCategory: 'electronics',
     title: 'TV & Görüntü & Ses',
     items: [
       'Televizyon',
@@ -90,7 +90,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Elektronik',
+    mainCategory: 'electronics',
     title: 'Bilgisayar & Tablet',
     items: [
       'Bilgisayarlar',
@@ -106,7 +106,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Ev & Yaşam',
+    mainCategory: 'homeAndLiving',
     title: 'Küçük Ev Aletleri',
     items: [
       'Süpürge',
@@ -122,7 +122,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Ev & Yaşam',
+    mainCategory: 'homeAndLiving',
     title: 'Beyaz Eşya',
     items: [
       'Buzdolabı',
@@ -138,7 +138,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Ev & Yaşam',
+    mainCategory: 'homeAndLiving',
     title: 'Giyilebilir Teknoloji',
     items: [
       'Akıllı Saat',
@@ -149,7 +149,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Kozmetik',
+    mainCategory: 'cosmetics',
     title: 'Kişisel Bakım Aletleri',
     items: [
       'Saç Düzleştirici',
@@ -162,7 +162,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Kozmetik',
+    mainCategory: 'cosmetics',
     title: 'Parfüm & Deodorant',
     items: [
       'Kadın Parfüm',
@@ -172,7 +172,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Kozmetik',
+    mainCategory: 'cosmetics',
     title: 'Makyaj',
     items: [
       'Fondöten',
@@ -184,7 +184,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Ayakkabı & Çanta',
+    mainCategory: 'shoesAndBags',
     title: 'Kadın Ayakkabı',
     items: [
       'Spor Ayakkabı',
@@ -196,7 +196,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Ayakkabı & Çanta',
+    mainCategory: 'shoesAndBags',
     title: 'Erkek Ayakkabı',
     items: [
       'Spor Ayakkabı',
@@ -207,7 +207,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Ayakkabı & Çanta',
+    mainCategory: 'shoesAndBags',
     title: 'Çanta',
     items: [
       'Kadın Çanta',
@@ -218,7 +218,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Spor & Outdoor',
+    mainCategory: 'sportsAndOutdoor',
     title: 'Spor Giyim',
     items: [
       'Eşofman',
@@ -230,7 +230,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Spor & Outdoor',
+    mainCategory: 'sportsAndOutdoor',
     title: 'Spor Aletleri',
     items: [
       'Koşu Bandı',
@@ -241,7 +241,7 @@ const subCategories = [
     ]
   },
   {
-    mainCategory: 'Spor & Outdoor',
+    mainCategory: 'sportsAndOutdoor',
     title: 'Outdoor & Kamp',
     items: [
       'Çadır',
@@ -275,6 +275,7 @@ const categoryButtonStyles = {
 };
 
 export function AppHeader() {
+  const { t } = useTranslation();
   const { user, signOut, userProfile } = useAuthStore();
   const { items, loadCart } = useCartStore();
   const [opened, { toggle, close }] = useDisclosure(false);
@@ -282,7 +283,7 @@ export function AppHeader() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [showSearch, setShowSearch] = useState(false);
   const navigate = useNavigate();
-  const [scroll, scrollTo] = useWindowScroll();
+  const [scroll] = useWindowScroll();
   const [prevScroll, setPrevScroll] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const [activeCategory, setActiveCategory] = useState(categories[0].title);
@@ -408,7 +409,7 @@ export function AppHeader() {
                   })}
                 >
                   <Group gap={5}>
-                    <Text fw={500}>Tüm Kategoriler</Text>
+                    <Text fw={500}>{t('homePage.header.allCategories')}</Text>
                     <IconChevronDown size={16} />
                   </Group>
                 </UnstyledButton>
@@ -446,7 +447,7 @@ export function AppHeader() {
                                 transition: 'color 0.2s ease'
                               }}
                             >
-                              {category.title}
+                              {t(`homePage.categories.${category.title}`)}
                             </Text>
                             <IconChevronDown 
                               className="category-icon"
@@ -493,7 +494,7 @@ export function AppHeader() {
                                 {subCategory.items.map((item) => (
                                   <Text
                                     component={Link}
-                                    to={`/kategori/${activeCategory.toLowerCase().replace(/\s+/g, '-')}/${item.toLowerCase().replace(/\s+/g, '-')}`}
+                                    to={`/kategori/${categories.find(cat => cat.title === activeCategory).slug}/${item.toLowerCase().replace(/\s+/g, '-')}`}
                                     key={item}
                                     size="sm"
                                     sx={(theme) => ({
@@ -531,31 +532,29 @@ export function AppHeader() {
                   }
                 })}
               >
-                {category.title}
+                {t(`homePage.categories.${category.title}`)}
               </Text>
             ))}
           </Group>
 
           {/* Sağ Menü */}
-          <Group>
-            {/* Arama Butonu */}
-            <ActionIcon 
-              variant="subtle" 
+          <Group gap={10}>
+            <ActionIcon
+              variant="transparent"
               onClick={() => setShowSearch(!showSearch)}
-              size="lg"
+              aria-label={t('homePage.header.search')}
             >
-              <IconSearch size={20} />
+              <IconSearch size={22} />
             </ActionIcon>
+            
+            {/* Dil Değiştirici */}
+            <LanguageSwitcher />
 
-            {/* Favoriler */}
-            <ActionIcon 
-              component={Link}
-              to="/favorites"
-              variant="subtle"
-              size="lg"
-            >
-              <IconHeart size={20} />
-            </ActionIcon>
+            <Link to="/favorites">
+              <ActionIcon variant="transparent" aria-label={t('homePage.header.favorites')}>
+                <IconHeart size={22} />
+              </ActionIcon>
+            </Link>
 
             {/* Sepet */}
             <ActionIcon
@@ -581,24 +580,24 @@ export function AppHeader() {
                   </ActionIcon>
                 </Menu.Target>
                 <Menu.Dropdown>
-                  <Menu.Label>Hesabım</Menu.Label>
+                  <Menu.Label>{t('homePage.header.myAccount')}</Menu.Label>
                   <Menu.Item 
                     leftSection={<IconUser size={14} />}
                     component={Link}
                     to="/profile"
                   >
-                    Profilim
+                    {t('homePage.header.profile')}
                   </Menu.Item>
                   <Menu.Item 
                     leftSection={<IconPackage size={14} />}
                     component={Link}
                     to="/orders"
                   >
-                    Siparişlerim
+                    {t('homePage.header.orders')}
                   </Menu.Item>
                   {user && userProfile?.role === 'admin' && (
                     <Menu.Item component={Link} to="/admin">
-                      Admin Panel
+                      {t('homePage.header.adminPanel')}
                     </Menu.Item>
                   )}
                   <Menu.Divider />
@@ -607,13 +606,13 @@ export function AppHeader() {
                     leftSection={<IconLogout size={14} />}
                     onClick={signOut}
                   >
-                    Çıkış Yap
+                    {t('homePage.header.logout')}
                   </Menu.Item>
                 </Menu.Dropdown>
               </Menu>
             ) : (
               <Button component={Link} to="/login" variant="filled">
-                Giriş Yap
+                {t('homePage.header.login')}
               </Button>
             )}
           </Group>
@@ -631,7 +630,7 @@ export function AppHeader() {
             <Container size="xl">
               <form onSubmit={handleSearch}>
                 <TextInput
-                  placeholder="Ürün, kategori veya marka ara..."
+                  placeholder={t('homePage.header.search')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   rightSection={
@@ -658,7 +657,7 @@ export function AppHeader() {
         onClose={close}
         size="100%"
         padding="md"
-        title="Menü"
+        title={t('homePage.header.menu')}
         hiddenFrom="sm"
         overlayProps={{
           opacity: 0.5,
@@ -667,7 +666,7 @@ export function AppHeader() {
       >
         <Stack>
           <TextInput
-            placeholder="Ara..."
+            placeholder={t('homePage.header.search')}
             rightSection={<IconSearch size={16} />}
           />
           {categories.map((category) => (
@@ -679,24 +678,24 @@ export function AppHeader() {
               fullWidth
               onClick={close}
             >
-              {category.title}
+              {t(`homePage.categories.${category.title}`)}
             </Button>
           ))}
           {user ? (
             <>
               <Button component={Link} to="/profile" variant="subtle" fullWidth onClick={close}>
-                Profilim
+                {t('homePage.header.profile')}
               </Button>
               <Button component={Link} to="/orders" variant="subtle" fullWidth onClick={close}>
-                Siparişlerim
+                {t('homePage.header.orders')}
               </Button>
               <Button color="red" onClick={() => { signOut(); close(); }} fullWidth>
-                Çıkış Yap
+                {t('homePage.header.logout')}
               </Button>
             </>
           ) : (
             <Button component={Link} to="/login" fullWidth onClick={close}>
-              Giriş Yap
+              {t('homePage.header.login')}
             </Button>
           )}
         </Stack>

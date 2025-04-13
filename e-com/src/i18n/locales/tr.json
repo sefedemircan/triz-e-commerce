@@ -1,0 +1,86 @@
+{
+  "homePage": {
+    "popularCategories": {
+      "title": "Popüler Kategoriler",
+      "trend": "Trend",
+      "categories": {
+        "electronics": "Elektronik",
+        "clothing": "Giyim",
+        "homeAndLiving": "Ev & Yaşam",
+        "cosmetics": "Kozmetik",
+        "shoesAndBags": "Ayakkabı & Çanta",
+        "sportsAndOutdoor": "Spor & Outdoor"
+      }
+    },
+    "heroSection": {
+      "slides": [
+        "Yaz İndirimleri",
+        "Özel Koleksiyon",
+        "Yeni Sezon Ürünleri"
+      ]
+    },
+    "features": {
+      "freeShipping": {
+        "title": "Ücretsiz Kargo",
+        "description": "500 TL üzeri alışverişlerde"
+      },
+      "securePayment": {
+        "title": "Güvenli Ödeme",
+        "description": "256-bit SSL koruması"
+      },
+      "installment": {
+        "title": "Taksit İmkanı",
+        "description": "9 taksit seçeneği"
+      },
+      "support": {
+        "title": "7/24 Destek",
+        "description": "Canlı destek hizmeti"
+      }
+    },
+    "campaigns": {
+      "title": "Kampanyalar & Fırsatlar",
+      "discount": "İndirimli"
+    },
+    "bestSellers": {
+      "title": "En Çok Satanlar",
+      "popular": "Popüler"
+    },
+    "featuredProducts": {
+      "title": "Öne Çıkan Ürünler",
+      "selected": "Seçkin"
+    },
+    "header": {
+      "allCategories": "Tüm Kategoriler",
+      "search": "Ürün, kategori veya marka ara...",
+      "profile": "Profilim",
+      "orders": "Siparişlerim",
+      "adminPanel": "Admin Panel",
+      "myAccount": "Hesabım",
+      "login": "Giriş Yap",
+      "logout": "Çıkış Yap",
+      "menu": "Menü",
+      "favorites": "Favoriler"
+    },
+    "categories": {
+      "electronics": "Elektronik",
+      "homeAndLiving": "Ev & Yaşam",
+      "cosmetics": "Kozmetik",
+      "shoesAndBags": "Ayakkabı & Çanta",
+      "sportsAndOutdoor": "Spor & Outdoor"
+    },
+    "brands": {
+      "title": "Popüler Markalar"
+    }
+  },
+  "common": {
+    "language": "Dil",
+    "turkish": "Türkçe",
+    "english": "İngilizce"
+  },
+  "productDetail": {
+    "addToCart": "Sepete Ekle",
+    "addToFavorites": "Favorilere Ekle",
+    "addToCartSuccess": "Ürün sepete eklendi",
+    "addToFavoritesSuccess": "Ürün favorilere eklendi"
+  }
+} 

@@ -3,10 +3,12 @@ import { Container, Title, Box, Skeleton, Group, Badge } from '@mantine/core';
 import { Carousel } from '@mantine/carousel';
 import { ProductCard } from '../ProductCard';
 import { productService } from '../../services/supabase/products';
+import { useTranslation } from 'react-i18next';
 
 export function Campaigns() {
   const [discountedProducts, setDiscountedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadDiscountedProducts = async () => {
@@ -15,7 +17,7 @@ export function Campaigns() {
         //console.log('Discounted Products:', data);
         setDiscountedProducts(data);
       } catch (error) {
-        //console.error('İndirimli ürünler yüklenirken hata:', error);
+        console.error('İndirimli ürünler yüklenirken hata:', error);
       } finally {
         setLoading(false);
       }
@@ -34,10 +36,10 @@ export function Campaigns() {
         <Group position="apart" mb={30}>
           <Group spacing="xs">
             <Title order={2} size="h3" weight={600}>
-              Kampanyalar & Fırsatlar
+              {t('homePage.campaigns.title')}
             </Title>
             <Badge variant="dot" color="orange" size="lg">
-              İndirimli
+              {t('homePage.campaigns.discount')}
             </Badge>
           </Group>
         </Group>

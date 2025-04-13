@@ -25,6 +25,7 @@ import { productService } from '../../services/supabase/products.js';
 import { useAuthStore } from '../../stores/authStore';
 import { useCartStore } from '../../stores/cartStore';
 import { Reviews } from '../../components/Reviews';
+import { useTranslation } from 'react-i18next';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -34,6 +35,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const { user } = useAuthStore();
   const { addToCart } = useCartStore();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadData = async () => {
@@ -217,7 +219,7 @@ export default function ProductDetail() {
                   fullWidth
                   color="orange"
                 >
-                  Sepete Ekle
+                  {t('productDetail.addToCart')}
                 </Button>
               </>
             )}

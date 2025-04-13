@@ -1,27 +1,30 @@
 import { Carousel } from '@mantine/carousel';
 import { Container } from '@mantine/core';
+import { useTranslation } from 'react-i18next';
 
 const HeroSection = () => {
+  const { t } = useTranslation();
+
   const slides = [
     {
       image: '/images/carousel/format_webp (1).png',
-      alt: 'Yaz İndirimleri'
+      alt: t('homePage.heroSection.slides.0')
     },
     {
       image: '/images/carousel/format_webp (2).png',
-      alt: 'Özel Koleksiyon'
+      alt: t('homePage.heroSection.slides.1')
     },
     {
       image: '/images/carousel/format_webp.jpeg',
-      alt: 'Yeni Sezon Ürünleri'
+      alt: t('homePage.heroSection.slides.2')
     },
     {
       image: '/images/carousel/format_webp (1).jpeg',
-      alt: 'Yaz İndirimleri'
+      alt: t('homePage.heroSection.slides.0')
     },
     {
       image: '/images/carousel/format_webp (2).jpeg',
-      alt: 'Özel Koleksiyon'
+      alt: t('homePage.heroSection.slides.1')
     },
   ];
 
