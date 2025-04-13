@@ -75,7 +75,8 @@
   "common": {
     "language": "Dil",
     "turkish": "Türkçe",
-    "english": "İngilizce"
+    "english": "İngilizce",
+    "spanish": "İspanyolca"
   },
   "productDetail": {
     "addToCart": "Sepete Ekle",

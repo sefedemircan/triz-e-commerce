@@ -1,0 +1,22 @@
+﻿{
+  "homePage": {
+    "popularCategories": {
+      "title": "Categorías Populares",
+      "trend": "Tendencia",
+      "categories": {
+        "electronics": "Electrónica",
+        "clothing": "Ropa",
+        "homeAndLiving": "Hogar & Vida",
+        "cosmetics": "Cosméticos",
+        "shoesAndBags": "Zapatos & Bolsos",
+        "sportsAndOutdoor": "Deportes & Aire Libre"
+      }
+    }
+  },
+  "common": {
+    "language": "Idioma",
+    "turkish": "Turco",
+    "english": "Inglés",
+    "spanish": "Español"
+  }
+}

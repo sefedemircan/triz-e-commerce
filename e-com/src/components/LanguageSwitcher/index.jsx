@@ -38,6 +38,12 @@ const LanguageSwitcher = () => {
             {currentLanguage === 'en' && <Text size="xs">✓</Text>}
           </Group>
         </Menu.Item>
+        <Menu.Item onClick={() => changeLanguage('es')}>
+          <Group position="apart">
+            <Text>{t('common.spanish')}</Text>
+            {currentLanguage === 'es' && <Text size="xs">✓</Text>}
+          </Group>
+        </Menu.Item>
       </Menu.Dropdown>
     </Menu>
   );

@@ -75,7 +75,8 @@
   "common": {
     "language": "Language",
     "turkish": "Turkish",
-    "english": "English"
+    "english": "English",
+    "spanish": "Spanish"
   },
   "productDetail": {
     "addToCart": "Add to Cart",
